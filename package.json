@@ -6,7 +6,10 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "e2e": "playwright test",
+    "e2e:ui": "playwright test --ui",
+    "e2e:debug": "playwright test --project chromium --headed"
   },
   "private": true,
   "dependencies": {
@@ -26,6 +29,7 @@
     "@angular-devkit/build-angular": "^16.2.0-rc.0",
     "@angular/cli": "~16.2.0-rc.0",
     "@angular/compiler-cli": "^16.2.0-next.0",
+    "@playwright/test": "^1.36.2",
     "@types/jasmine": "~4.3.0",
     "jasmine-core": "~4.6.0",
     "jest": "^29.6.2",

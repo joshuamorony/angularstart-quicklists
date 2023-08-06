@@ -8,7 +8,7 @@ export class HomePage {
   constructor(page: Page) {
     this.page = page;
     this.createChecklistButton = page.getByTestId('create-checklist-button');
-    this.noChecklistsMessage = page.getByText('no checklists');
+    this.noChecklistsMessage = page.getByText('create your first');
   }
 
   async goto() {

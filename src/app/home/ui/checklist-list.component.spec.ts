@@ -18,6 +18,9 @@ describe('ChecklistListComponent', () => {
 
     fixture = TestBed.createComponent(ChecklistListComponent);
     component = fixture.componentInstance;
+
+    component.checklists = [];
+
     fixture.detectChanges();
   });
 

@@ -39,6 +39,17 @@ describe('ChecklistListComponent', () => {
       expect(emptyMessage).toBeTruthy();
     });
 
-    it('should NOT render empty if there are checklists', () => {});
+    it('should NOT render empty if there are checklists', () => {
+      const testData = [{}] as any;
+      component.checklists = testData;
+
+      fixture.detectChanges();
+
+      const emptyMessage = fixture.debugElement.query(
+        By.css('[data-testid="no-checklists-message"]')
+      );
+
+      expect(emptyMessage).toBeFalsy();
+    });
   });
 });

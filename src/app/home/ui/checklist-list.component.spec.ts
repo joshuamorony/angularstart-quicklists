@@ -55,4 +55,8 @@ describe('ChecklistListComponent', () => {
       expect(emptyMessage).toBeFalsy();
     });
   });
+
+  describe('output: delete', () => {
+    it('should emit checklist id to be deleted', () => {});
+  });
 });

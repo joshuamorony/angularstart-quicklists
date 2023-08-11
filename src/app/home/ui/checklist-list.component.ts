@@ -18,7 +18,7 @@ import { Checklist } from 'src/app/shared/interfaces/checklist';
     </ul>
 
     <p *ngIf="!checklists.length" data-testid="no-checklists-message">
-      Click the add button to add your first checklist!
+      Click the add button to create your first checklist!
     </p>
   `,
   imports: [CommonModule],

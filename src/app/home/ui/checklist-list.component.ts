@@ -7,7 +7,7 @@ import { Checklist } from 'src/app/shared/interfaces/checklist';
   selector: 'app-checklist-list',
   template: `
     <ul *ngFor="let checklist of checklists">
-      <li>
+      <li data-testid="checklist-item">
         <button
           (click)="delete.emit(checklist.id)"
           data-testid="delete-checklist"

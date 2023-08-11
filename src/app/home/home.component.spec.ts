@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import HomeComponent from './home.component';
 import { By } from '@angular/platform-browser';
+import { ModalComponent } from '../shared/ui/modal.component';
+import { MockModalComponent } from '../shared/ui/modal.component.spec';
 
 describe('HomeComponent', () => {
   let component: HomeComponent;
@@ -11,8 +13,8 @@ describe('HomeComponent', () => {
       imports: [HomeComponent],
     })
       .overrideComponent(HomeComponent, {
-        remove: { imports: [] },
-        add: { imports: [] },
+        remove: { imports: [ModalComponent] },
+        add: { imports: [MockModalComponent] },
       })
       .compileComponents();
 
@@ -25,7 +27,7 @@ describe('HomeComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  describe('app-form-modal', () => {
+  describe('app-modal', () => {
     it('should have isOpen set to true when add button clicked', () => {
       const addButton = fixture.debugElement.query(
         By.css('[data-testid="create-checklist-button"]')
@@ -35,9 +37,9 @@ describe('HomeComponent', () => {
 
       fixture.detectChanges();
 
-      const modal = fixture.debugElement.query(By.css('app-form-modal'));
+      const modal = fixture.debugElement.query(By.css('app-modal'));
 
-      expect(modal.componentInstance.isOpen).toBe(true);
+      expect(modal.componentInstance.isOpen).toBeTruthy();
     });
   });
 });

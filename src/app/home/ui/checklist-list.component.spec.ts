@@ -30,6 +30,8 @@ describe('ChecklistListComponent', () => {
   });
 
   describe('input: checklists', () => {
+    it('should render a list item for each element', () => {});
+
     it('should render empty message when checklists are empty', () => {
       const testData = [] as any;
       component.checklists = testData;

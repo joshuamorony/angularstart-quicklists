@@ -1,11 +1,22 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Checklist } from 'src/app/shared/interfaces/checklist';
 
 @Component({
   standalone: true,
   selector: 'app-checklist-list',
   template: `
+    <ul *ngFor="let checklist of checklists">
+      <li>
+        <button
+          (click)="delete.emit(checklist.id)"
+          data-testid="delete-checklist"
+        >
+          Delete
+        </button>
+      </li>
+    </ul>
+
     <p *ngIf="!checklists.length" data-testid="no-checklists-message">
       Click the add button to add your first checklist!
     </p>
@@ -14,4 +25,5 @@ import { Checklist } from 'src/app/shared/interfaces/checklist';
 })
 export class ChecklistListComponent {
   @Input({ required: true }) checklists!: Checklist[];
+  @Output() delete = new EventEmitter<string>();
 }

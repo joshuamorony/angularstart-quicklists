@@ -30,7 +30,18 @@ describe('ChecklistListComponent', () => {
   });
 
   describe('input: checklists', () => {
-    it('should render a list item for each element', () => {});
+    it('should render a list item for each element', () => {
+      const testData = [{}, {}, {}] as any;
+      component.checklists = testData;
+
+      fixture.detectChanges();
+
+      const result = fixture.debugElement.queryAll(
+        By.css('[data-testid="checklist-item"]')
+      );
+
+      expect(result.length).toEqual(testData.length);
+    });
 
     it('should render empty message when checklists are empty', () => {
       const testData = [] as any;

@@ -19,6 +19,11 @@ describe('FormModalComponent', () => {
 
     fixture = TestBed.createComponent(FormModalComponent);
     component = fixture.componentInstance;
+
+    component.formGroup = new FormGroup({
+      title: new FormControl(),
+    });
+
     fixture.detectChanges();
   });
 
@@ -39,7 +44,7 @@ describe('FormModalComponent', () => {
       fixture.detectChanges();
 
       const inputs = fixture.debugElement.queryAll(
-        By.css('input[type=]"text"')
+        By.css('input[type="text"]')
       );
 
       expect(inputs.length).toEqual(Object.entries(controls).length);
@@ -56,7 +61,7 @@ describe('FormModalComponent', () => {
 
       const input = fixture.debugElement.query(By.css('input[type="text"]'));
 
-      expect(input.componentInstance.value).toEqual(testValue);
+      expect(input.nativeElement.value).toEqual(testValue);
     });
 
     it('should use the form control name as label for input', () => {

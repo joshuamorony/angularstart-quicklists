@@ -11,7 +11,7 @@ import { FormGroup, ReactiveFormsModule } from '@angular/forms';
         <label [for]="control.key">{{ control.key }}</label>
         <input [id]="control.key" type="text" [formControlName]="control.key" />
       </div>
-      <button type="submit">Save</button>
+      <button type="submit" data-testid="save-checklist-button">Save</button>
     </form>
   `,
   imports: [ReactiveFormsModule, CommonModule],

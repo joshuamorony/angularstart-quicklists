@@ -16,7 +16,7 @@ import { ChecklistService } from '../shared/data-access/checklist.service';
     >
       Add
     </button>
-    <app-checklist-list [checklists]="[]" />
+    <app-checklist-list [checklists]="checklistService.checklists()" />
 
     <app-modal [isOpen]="!!checklistBeingEdited()">
       <ng-template>

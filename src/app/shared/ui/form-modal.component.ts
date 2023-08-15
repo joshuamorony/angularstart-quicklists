@@ -8,8 +8,8 @@ import { FormGroup, ReactiveFormsModule } from '@angular/forms';
   template: `
     <form [formGroup]="formGroup">
       <div *ngFor="let control of formGroup.controls | keyvalue">
-        <label>{{ control.key }}</label>
-        <input type="text" [formControlName]="control.key" />
+        <label [for]="control.key">{{ control.key }}</label>
+        <input [id]="control.key" type="text" [formControlName]="control.key" />
       </div>
     </form>
   `,

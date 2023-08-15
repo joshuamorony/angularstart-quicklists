@@ -93,6 +93,16 @@ describe('FormModalComponent', () => {
   });
 
   describe('output: close', () => {
-    it('should emit when save button is clicked', () => {});
+    it('should emit when save button is clicked', () => {
+      const observerSpy = subscribeSpyTo(component.close);
+
+      const saveButton = fixture.debugElement.query(
+        By.css('form button[type="submit"]')
+      );
+
+      saveButton.nativeElement.click();
+
+      expect(observerSpy.getValuesLength()).toEqual(1);
+    });
   });
 });

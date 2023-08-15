@@ -19,4 +19,5 @@ import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 export class FormModalComponent {
   @Input({ required: true }) formGroup!: FormGroup;
   @Output() save = new EventEmitter<void>();
+  @Output() close = new EventEmitter<void>();
 }

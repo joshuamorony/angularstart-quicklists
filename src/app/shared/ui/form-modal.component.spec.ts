@@ -82,11 +82,17 @@ describe('FormModalComponent', () => {
     it('should emit when the save button is clicked', () => {
       const observerSpy = subscribeSpyTo(component.save);
 
-      const form = fixture.debugElement.query(By.css('form'));
+      const saveButton = fixture.debugElement.query(
+        By.css('form button[type="submit"]')
+      );
 
-      form.triggerEventHandler('ngSubmit', null);
+      saveButton.nativeElement.click();
 
       expect(observerSpy.getValuesLength()).toEqual(1);
     });
+  });
+
+  describe('output: close', () => {
+    it('should emit when save button is clicked', () => {});
   });
 });

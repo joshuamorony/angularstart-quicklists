@@ -1,16 +1,48 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ModalComponent } from './modal.component';
 
-import { Component, Input, TemplateRef, ViewChild } from '@angular/core';
+import {
+  Component,
+  ContentChild,
+  EmbeddedViewRef,
+  Input,
+  OnChanges,
+  OnDestroy,
+  SimpleChanges,
+  TemplateRef,
+  ViewChild,
+  ViewContainerRef,
+} from '@angular/core';
 import { Dialog } from '@angular/cdk/dialog';
 
 @Component({
   standalone: true,
   selector: 'app-modal',
-  template: ``,
+  template: ` <ng-container #container></ng-container> `,
 })
-export class MockModalComponent {
+export class MockModalComponent implements OnDestroy, OnChanges {
   @Input() isOpen!: boolean;
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['isOpen'] && this.templateRef) {
+      this.viewRef = this.viewContainerRef.createEmbeddedView(this.templateRef);
+    } else if (this.viewRef) {
+      this.viewRef.destroy();
+      this.viewRef = null;
+    }
+  }
+
+  @ViewChild('container', { read: ViewContainerRef })
+  viewContainerRef!: ViewContainerRef;
+  @ContentChild(TemplateRef) templateRef!: TemplateRef<any>;
+
+  private viewRef: EmbeddedViewRef<any> | null = null;
+
+  ngOnDestroy() {
+    if (this.viewRef) {
+      this.viewRef.destroy();
+    }
+  }
 }
 
 @Component({

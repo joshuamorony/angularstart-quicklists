@@ -5,6 +5,8 @@ import { ModalComponent } from '../shared/ui/modal.component';
 import { MockModalComponent } from '../shared/ui/modal.component.spec';
 import { ChecklistService } from '../shared/data-access/checklist.service';
 import { DebugElement } from '@angular/core';
+import { FormModalComponent } from '../shared/ui/form-modal.component';
+import { MockFormModalComponent } from '../shared/ui/form-modal.component.spec';
 
 describe('HomeComponent', () => {
   let component: HomeComponent;
@@ -26,8 +28,8 @@ describe('HomeComponent', () => {
       ],
     })
       .overrideComponent(HomeComponent, {
-        remove: { imports: [ModalComponent] },
-        add: { imports: [MockModalComponent] },
+        remove: { imports: [ModalComponent, FormModalComponent] },
+        add: { imports: [MockModalComponent, MockFormModalComponent] },
       })
       .compileComponents();
 
@@ -64,10 +66,21 @@ describe('HomeComponent', () => {
         expect(modal.componentInstance.isOpen).toBeTruthy();
       });
     });
+  });
+
+  describe('app-form-modal', () => {
+    let appFormModal: DebugElement;
+
+    beforeEach(() => {
+      component.checklistBeingEdited.set({});
+      fixture.detectChanges();
+
+      appFormModal = fixture.debugElement.query(By.css('app-form-modal'));
+    });
 
     describe('output: save', () => {
       it('should next add$ source with form values', () => {
-        appModal.triggerEventHandler('save');
+        appFormModal.triggerEventHandler('save');
         expect(checklistService.add$.next).toHaveBeenCalledWith(
           component.checklistForm.getRawValue()
         );

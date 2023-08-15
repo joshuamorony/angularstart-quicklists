@@ -3,6 +3,18 @@ import { FormModalComponent } from './form-modal.component';
 import { FormControl, FormGroup } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 import { subscribeSpyTo } from '@hirez_io/observer-spy';
+import { Component, Output, EventEmitter, Input } from '@angular/core';
+
+@Component({
+  standalone: true,
+  selector: 'app-form-modal',
+  template: `<div></div>`,
+})
+export class MockFormModalComponent {
+  @Input() formGroup!: FormGroup;
+  @Output() save = new EventEmitter<void>();
+  @Output() close = new EventEmitter<void>();
+}
 
 describe('FormModalComponent', () => {
   let component: FormModalComponent;

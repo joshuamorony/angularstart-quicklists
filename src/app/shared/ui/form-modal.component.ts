@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
@@ -17,4 +17,5 @@ import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 })
 export class FormModalComponent {
   @Input({ required: true }) formGroup!: FormGroup;
+  @Output() save = new EventEmitter<void>();
 }

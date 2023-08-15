@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormModalComponent } from './form-modal.component';
 import { FormControl, FormGroup } from '@angular/forms';
 import { By } from '@angular/platform-browser';
+import { subscribeSpyTo } from '@hirez_io/observer-spy';
 
 describe('FormModalComponent', () => {
   let component: FormModalComponent;
@@ -74,6 +75,18 @@ describe('FormModalComponent', () => {
       const label = fixture.debugElement.query(By.css('label'));
 
       expect(label.nativeElement.innerHTML).toContain('title');
+    });
+  });
+
+  describe('output: save', () => {
+    it('should emit when the save button is clicked', () => {
+      const observerSpy = subscribeSpyTo(component.save);
+
+      const form = fixture.debugElement.query(By.css('form'));
+
+      form.triggerEventHandler('ngSubmit', null);
+
+      expect(observerSpy.getValuesLength()).toEqual(1);
     });
   });
 });

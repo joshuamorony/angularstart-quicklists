@@ -16,10 +16,11 @@ export class MockModalComponent {
 @Component({
   standalone: true,
   template: `
-    <ng-template #testTemplate>
-      <p>test content</p>
-    </ng-template>
-    <app-modal [isOpen]="isOpen"></app-modal>
+    <app-modal [isOpen]="isOpen">
+      <ng-template #testTemplate>
+        <p>test content</p>
+      </ng-template>
+    </app-modal>
   `,
   imports: [ModalComponent],
 })

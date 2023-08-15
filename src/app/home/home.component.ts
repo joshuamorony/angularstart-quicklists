@@ -4,6 +4,7 @@ import { Checklist } from '../shared/interfaces/checklist';
 import { ModalComponent } from '../shared/ui/modal.component';
 import { FormModalComponent } from '../shared/ui/form-modal.component';
 import { FormBuilder } from '@angular/forms';
+import { ChecklistService } from '../shared/data-access/checklist.service';
 
 @Component({
   selector: 'app-home',
@@ -19,7 +20,10 @@ import { FormBuilder } from '@angular/forms';
 
     <app-modal [isOpen]="!!checklistBeingEdited()">
       <ng-template>
-        <app-form-modal [formGroup]="checklistForm" />
+        <app-form-modal
+          [formGroup]="checklistForm"
+          (save)="checklistService.add$.next(checklistForm.getRawValue())"
+        />
       </ng-template>
     </app-modal>
   `,
@@ -27,6 +31,7 @@ import { FormBuilder } from '@angular/forms';
 })
 export default class HomeComponent {
   formBuilder = inject(FormBuilder);
+  checklistService = inject(ChecklistService);
 
   checklistBeingEdited = signal<Partial<Checklist> | null>(null);
 

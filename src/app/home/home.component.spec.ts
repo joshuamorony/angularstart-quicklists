@@ -20,6 +20,7 @@ describe('HomeComponent', () => {
         {
           provide: ChecklistService,
           useValue: {
+            checklists: jest.fn().mockReturnValue([]),
             add$: {
               next: jest.fn(),
             },
@@ -52,7 +53,7 @@ describe('HomeComponent', () => {
     });
 
     describe('input: isOpen', () => {
-      it('should be set to true when add button clicked', () => {
+      it('should be truthy when add button clicked', () => {
         const addButton = fixture.debugElement.query(
           By.css('[data-testid="create-checklist-button"]')
         );
@@ -84,6 +85,12 @@ describe('HomeComponent', () => {
         expect(checklistService.add$.next).toHaveBeenCalledWith(
           component.checklistForm.getRawValue()
         );
+      });
+
+      it('should set checklistBeingEdited to null', () => {
+        jest.spyOn(component, 'checklistBeingEdited');
+        appFormModal.triggerEventHandler('save');
+        expect(component.checklistBeingEdited).toHaveBeenCalledWith(null);
       });
     });
   });

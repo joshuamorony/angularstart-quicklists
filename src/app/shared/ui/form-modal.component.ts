@@ -6,11 +6,12 @@ import { FormGroup, ReactiveFormsModule } from '@angular/forms';
   standalone: true,
   selector: 'app-form-modal',
   template: `
-    <form [formGroup]="formGroup">
+    <form [formGroup]="formGroup" (ngSubmit)="save.emit()">
       <div *ngFor="let control of formGroup.controls | keyvalue">
         <label [for]="control.key">{{ control.key }}</label>
         <input [id]="control.key" type="text" [formControlName]="control.key" />
       </div>
+      <button type="submit">Save</button>
     </form>
   `,
   imports: [ReactiveFormsModule, CommonModule],

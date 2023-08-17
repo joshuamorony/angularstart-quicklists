@@ -6,6 +6,9 @@ import { FormGroup, ReactiveFormsModule } from '@angular/forms';
   standalone: true,
   selector: 'app-form-modal',
   template: `
+    <button (click)="close.emit()" data-testid="close-modal-button">
+      close
+    </button>
     <form [formGroup]="formGroup" (ngSubmit)="save.emit(); close.emit()">
       <div *ngFor="let control of formGroup.controls | keyvalue">
         <label [for]="control.key">{{ control.key }}</label>

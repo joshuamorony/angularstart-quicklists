@@ -97,6 +97,16 @@ describe('HomeComponent', () => {
 
         expect(modal.componentInstance.isOpen).toBeFalsy();
       });
+
+      it('should clear title input', () => {
+        component.checklistForm.get('title')?.setValue('test');
+        fixture.detectChanges();
+
+        appFormModal.triggerEventHandler('close');
+        fixture.detectChanges();
+
+        expect(component.checklistForm.get('title')?.getRawValue()).toEqual('');
+      });
     });
   });
 });

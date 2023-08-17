@@ -87,10 +87,13 @@ describe('HomeComponent', () => {
         );
       });
 
-      it('should set checklistBeingEdited to null', () => {
-        jest.spyOn(component, 'checklistBeingEdited');
+      it('should close app-modal', () => {
         appFormModal.triggerEventHandler('save');
-        expect(component.checklistBeingEdited).toHaveBeenCalledWith(null);
+        fixture.detectChanges();
+
+        const modal = fixture.debugElement.query(By.css('app-modal'));
+
+        expect(modal.componentInstance.isOpen).toBeFalsy();
       });
     });
   });

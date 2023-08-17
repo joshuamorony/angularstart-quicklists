@@ -24,6 +24,9 @@ describe('HomeComponent', () => {
             add$: {
               next: jest.fn(),
             },
+            remove$: {
+              next: jest.fn(),
+            },
           },
         },
       ],
@@ -43,6 +46,18 @@ describe('HomeComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  describe('app-checklist-list', () => {
+    describe('output: delete', () => {
+      it('should next remove$ source with emitted value', () => {
+        const testId = 5;
+        const list = fixture.debugElement.query(By.css('app-checklist-list'));
+        list.triggerEventHandler('delete', testId);
+
+        expect(checklistService.remove$.next).toHaveBeenCalledWith(testId);
+      });
+    });
   });
 
   describe('app-modal', () => {

@@ -1,7 +1,11 @@
 import { Injectable, computed, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject } from 'rxjs';
-import { AddChecklist, Checklist } from '../interfaces/checklist';
+import {
+  AddChecklist,
+  Checklist,
+  RemoveChecklist,
+} from '../interfaces/checklist';
 
 export interface ChecklistsState {
   checklists: Checklist[];
@@ -21,6 +25,7 @@ export class ChecklistService {
 
   // sources
   add$ = new Subject<AddChecklist>();
+  remove$ = new Subject<RemoveChecklist>();
 
   constructor() {
     this.add$.pipe(takeUntilDestroyed()).subscribe((checklist) =>

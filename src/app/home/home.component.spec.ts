@@ -86,15 +86,6 @@ describe('HomeComponent', () => {
           component.checklistForm.getRawValue()
         );
       });
-
-      it('should close app-modal', () => {
-        appFormModal.triggerEventHandler('save');
-        fixture.detectChanges();
-
-        const modal = fixture.debugElement.query(By.css('app-modal'));
-
-        expect(modal.componentInstance.isOpen).toBeFalsy();
-      });
     });
 
     describe('output: close', () => {

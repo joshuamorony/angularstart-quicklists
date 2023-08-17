@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormModalComponent } from './form-modal.component';
 import { FormControl, FormGroup } from '@angular/forms';
 import { By } from '@angular/platform-browser';
-import { subscribeSpyTo } from '@hirez_io/observer-spy';
+import { SubscriberSpy, subscribeSpyTo } from '@hirez_io/observer-spy';
 import { Component, Output, EventEmitter, Input } from '@angular/core';
 
 @Component({
@@ -105,16 +105,30 @@ describe('FormModalComponent', () => {
   });
 
   describe('output: close', () => {
-    it('should emit when save button is clicked', () => {
-      const observerSpy = subscribeSpyTo(component.close);
+    let closeSpy: SubscriberSpy<void>;
 
+    beforeEach(() => {
+      closeSpy = subscribeSpyTo(component.close);
+    });
+
+    it('should emit when save button is clicked', () => {
       const saveButton = fixture.debugElement.query(
         By.css('form button[type="submit"]')
       );
 
       saveButton.nativeElement.click();
 
-      expect(observerSpy.getValuesLength()).toEqual(1);
+      expect(closeSpy.getValuesLength()).toEqual(1);
+    });
+
+    it('should emit when the close button is clicked', () => {
+      const closeButton = fixture.debugElement.query(
+        By.css('[data-testid="close-modal-button"]')
+      );
+
+      closeButton.nativeElement.click();
+
+      expect(closeSpy.getValuesLength()).toEqual(1);
     });
   });
 });

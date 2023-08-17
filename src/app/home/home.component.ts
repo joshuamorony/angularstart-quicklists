@@ -16,7 +16,10 @@ import { ChecklistService } from '../shared/data-access/checklist.service';
     >
       Add
     </button>
-    <app-checklist-list [checklists]="checklistService.checklists()" />
+    <app-checklist-list
+      [checklists]="checklistService.checklists()"
+      (delete)="checklistService.remove$.next($event)"
+    />
 
     <app-modal [isOpen]="!!checklistBeingEdited()">
       <ng-template>

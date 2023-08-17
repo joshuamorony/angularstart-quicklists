@@ -96,5 +96,16 @@ describe('HomeComponent', () => {
         expect(modal.componentInstance.isOpen).toBeFalsy();
       });
     });
+
+    describe('output: close', () => {
+      it('should close app-modal', () => {
+        appFormModal.triggerEventHandler('close');
+        fixture.detectChanges();
+
+        const modal = fixture.debugElement.query(By.css('app-modal'));
+
+        expect(modal.componentInstance.isOpen).toBeFalsy();
+      });
+    });
   });
 });

@@ -7,11 +7,14 @@ import { ChecklistService } from '../shared/data-access/checklist.service';
 import { DebugElement } from '@angular/core';
 import { FormModalComponent } from '../shared/ui/form-modal.component';
 import { MockFormModalComponent } from '../shared/ui/form-modal.component.spec';
+import { Checklist } from '../shared/interfaces/checklist';
 
 describe('HomeComponent', () => {
   let component: HomeComponent;
   let fixture: ComponentFixture<HomeComponent>;
   let checklistService: ChecklistService;
+
+  const mockChecklists: Checklist[] = [{ id: '1', title: 'test' }];
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -20,7 +23,7 @@ describe('HomeComponent', () => {
         {
           provide: ChecklistService,
           useValue: {
-            checklists: jest.fn().mockReturnValue([]),
+            checklists: jest.fn().mockReturnValue(mockChecklists),
             add$: {
               next: jest.fn(),
             },
@@ -49,10 +52,21 @@ describe('HomeComponent', () => {
   });
 
   describe('app-checklist-list', () => {
+    let list: DebugElement;
+
+    beforeEach(() => {
+      list = fixture.debugElement.query(By.css('app-checklist-list'));
+    });
+
+    describe('input: checklists', () => {
+      it('should use checklists selector as input', () => {
+        expect(list.componentInstance.checklists).toEqual(mockChecklists);
+      });
+    });
+
     describe('output: delete', () => {
       it('should next remove$ source with emitted value', () => {
         const testId = 5;
-        const list = fixture.debugElement.query(By.css('app-checklist-list'));
         list.triggerEventHandler('delete', testId);
 
         expect(checklistService.remove$.next).toHaveBeenCalledWith(testId);

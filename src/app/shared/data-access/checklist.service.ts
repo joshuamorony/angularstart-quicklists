@@ -4,6 +4,7 @@ import { Subject } from 'rxjs';
 import {
   AddChecklist,
   Checklist,
+  EditChecklist,
   RemoveChecklist,
 } from '../interfaces/checklist';
 
@@ -25,6 +26,7 @@ export class ChecklistService {
 
   // sources
   add$ = new Subject<AddChecklist>();
+  edit$ = new Subject<EditChecklist>();
   remove$ = new Subject<RemoveChecklist>();
 
   constructor() {

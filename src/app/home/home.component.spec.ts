@@ -45,6 +45,9 @@ describe('HomeComponent', () => {
             remove$: {
               next: jest.fn(),
             },
+            edit$: {
+              next: jest.fn(),
+            },
           },
         },
       ],
@@ -145,11 +148,30 @@ describe('HomeComponent', () => {
     });
 
     describe('output: save', () => {
-      it('should next add$ source with form values', () => {
-        appFormModal.triggerEventHandler('save');
-        expect(checklistService.add$.next).toHaveBeenCalledWith(
-          component.checklistForm.getRawValue()
-        );
+      describe('checklist not being edited', () => {
+        it('should next add$ source with form values', () => {
+          appFormModal.triggerEventHandler('save');
+          expect(checklistService.add$.next).toHaveBeenCalledWith(
+            component.checklistForm.getRawValue()
+          );
+        });
+      });
+
+      describe('checklist being edited', () => {
+        let testChecklist: any;
+
+        beforeEach(() => {
+          testChecklist = { id: '5', title: 'hello' };
+          component.checklistBeingEdited.set(testChecklist);
+        });
+
+        it('should next edit$ source with current id and form data', () => {
+          appFormModal.triggerEventHandler('save');
+          expect(checklistService.edit$.next).toHaveBeenCalledWith({
+            id: testChecklist.id,
+            data: component.checklistForm.getRawValue(),
+          });
+        });
       });
     });
 

@@ -127,14 +127,14 @@ describe('HomeComponent', () => {
         expect(modal.componentInstance.isOpen).toBeFalsy();
       });
 
-      it('should clear title input', () => {
+      it('should reset form', () => {
         component.checklistForm.get('title')?.setValue('test');
         fixture.detectChanges();
 
         appFormModal.triggerEventHandler('close');
         fixture.detectChanges();
 
-        expect(component.checklistForm.get('title')?.getRawValue()).toEqual('');
+        expect(component.checklistForm.reset).toHaveBeenCalled();
       });
     });
   });

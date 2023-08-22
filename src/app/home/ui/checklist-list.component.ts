@@ -28,4 +28,5 @@ import { Checklist } from 'src/app/shared/interfaces/checklist';
 export class ChecklistListComponent {
   @Input({ required: true }) checklists!: Checklist[];
   @Output() delete = new EventEmitter<string>();
+  @Output() edit = new EventEmitter<Checklist>();
 }

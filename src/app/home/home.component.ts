@@ -26,7 +26,14 @@ import { ChecklistService } from '../shared/data-access/checklist.service';
       <ng-template>
         <app-form-modal
           [formGroup]="checklistForm"
-          (save)="checklistService.add$.next(checklistForm.getRawValue())"
+          (save)="
+            checklistBeingEdited()?.id
+              ? checklistService.edit$.next({
+                  id: checklistBeingEdited()!.id!,
+                  data: checklistForm.getRawValue()
+                })
+              : checklistService.add$.next(checklistForm.getRawValue())
+          "
           (close)="checklistBeingEdited.set(null)"
         />
       </ng-template>

@@ -43,6 +43,17 @@ export class ChecklistService {
         checklists: state.checklists.filter((checklist) => checklist.id !== id),
       }))
     );
+
+    this.edit$.pipe(takeUntilDestroyed()).subscribe((update) =>
+      this.state.update((state) => ({
+        ...state,
+        checklists: state.checklists.map((checklist) =>
+          checklist.id === update.id
+            ? { ...checklist, title: update.data.title }
+            : checklist
+        ),
+      }))
+    );
   }
 
   private addIdToChecklist(checklist: AddChecklist) {

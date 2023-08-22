@@ -9,6 +9,7 @@ import { Checklist } from 'src/app/shared/interfaces/checklist';
     <ul>
       <li *ngFor="let checklist of checklists" data-testid="checklist-item">
         {{ checklist.title }}
+        <button data-testid="edit-checklist">Edit</button>
         <button
           (click)="delete.emit(checklist.id)"
           data-testid="delete-checklist"

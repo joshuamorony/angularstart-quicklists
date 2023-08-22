@@ -19,6 +19,7 @@ import { ChecklistService } from '../shared/data-access/checklist.service';
     <app-checklist-list
       [checklists]="checklistService.checklists()"
       (delete)="checklistService.remove$.next($event)"
+      (edit)="checklistBeingEdited.set($event)"
     />
 
     <app-modal [isOpen]="!!checklistBeingEdited()">
@@ -49,6 +50,10 @@ export default class HomeComponent {
 
       if (!checklist) {
         this.checklistForm.reset();
+      } else {
+        this.checklistForm.patchValue({
+          title: checklist.title,
+        });
       }
     });
   }

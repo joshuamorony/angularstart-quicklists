@@ -8,11 +8,13 @@ import { DebugElement } from '@angular/core';
 import { FormModalComponent } from '../shared/ui/form-modal.component';
 import { MockFormModalComponent } from '../shared/ui/form-modal.component.spec';
 import { Checklist } from '../shared/interfaces/checklist';
+import { FormBuilder } from '@angular/forms';
 
 describe('HomeComponent', () => {
   let component: HomeComponent;
   let fixture: ComponentFixture<HomeComponent>;
   let checklistService: ChecklistService;
+  let formBuilder: FormBuilder;
 
   const mockChecklists: Checklist[] = [{ id: '1', title: 'test' }];
 
@@ -20,6 +22,19 @@ describe('HomeComponent', () => {
     TestBed.configureTestingModule({
       imports: [HomeComponent],
       providers: [
+        {
+          provide: FormBuilder,
+          useValue: {
+            nonNullable: {
+              group: jest.fn().mockReturnValue({
+                patchValue: jest.fn(),
+                reset: jest.fn(),
+                get: jest.fn(),
+                getRawValue: jest.fn(),
+              }),
+            },
+          },
+        },
         {
           provide: ChecklistService,
           useValue: {
@@ -41,6 +56,7 @@ describe('HomeComponent', () => {
       .compileComponents();
 
     checklistService = TestBed.inject(ChecklistService);
+    formBuilder = TestBed.inject(FormBuilder);
 
     fixture = TestBed.createComponent(HomeComponent);
     component = fixture.componentInstance;
@@ -70,6 +86,26 @@ describe('HomeComponent', () => {
         list.triggerEventHandler('delete', testId);
 
         expect(checklistService.remove$.next).toHaveBeenCalledWith(testId);
+      });
+    });
+
+    describe('output: edit', () => {
+      let testChecklist: any;
+      beforeEach(() => {
+        testChecklist = { id: '1', title: 'test' } as any;
+        list.triggerEventHandler('edit', testChecklist);
+        fixture.detectChanges();
+      });
+
+      it('should open modal', () => {
+        const modal = fixture.debugElement.query(By.css('app-modal'));
+        expect(modal.componentInstance.isOpen).toBeTruthy();
+      });
+
+      it('should patch form with checklist title', () => {
+        expect(component.checklistForm.patchValue).toHaveBeenCalledWith({
+          title: testChecklist.title,
+        });
       });
     });
   });

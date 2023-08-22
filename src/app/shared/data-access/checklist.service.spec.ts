@@ -37,6 +37,22 @@ describe('ChecklistService', () => {
     });
   });
 
+  describe('source: edit$', () => {
+    let preEdit = { title: 'test' };
+    let postEdit = { title: 'edited' };
+
+    beforeEach(() => {
+      service.add$.next(preEdit);
+      const addedChecklist = service.checklists()[0];
+      service.edit$.next({ id: addedChecklist.id, data: { ...postEdit } });
+    });
+
+    it('should edit the checklist with the supplied data', () => {
+      const checklist = service.checklists()[0];
+      expect(checklist).toEqual({ id: checklist.id, ...postEdit });
+    });
+  });
+
   describe('source: remove$', () => {
     beforeEach(() => {
       // add some test data

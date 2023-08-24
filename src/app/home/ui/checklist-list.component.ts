@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { RouterModule } from '@angular/router';
 import { Checklist } from 'src/app/shared/interfaces/checklist';
 
 @Component({
@@ -11,7 +12,12 @@ import { Checklist } from 'src/app/shared/interfaces/checklist';
         *ngFor="let checklist of checklists; trackBy: trackByFn"
         data-testid="checklist-item"
       >
-        {{ checklist.title }}
+        <a
+          routerLink="/checklist/{{ checklist.id }}"
+          data-testid="checklist-link"
+        >
+          {{ checklist.title }}
+        </a>
         <button (click)="edit.emit(checklist)" data-testid="edit-checklist">
           Edit
         </button>
@@ -28,7 +34,7 @@ import { Checklist } from 'src/app/shared/interfaces/checklist';
       Click the add button to create your first checklist!
     </p>
   `,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
 })
 export class ChecklistListComponent {
   @Input({ required: true }) checklists!: Checklist[];

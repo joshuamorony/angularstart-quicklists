@@ -7,7 +7,10 @@ import { Checklist } from 'src/app/shared/interfaces/checklist';
   selector: 'app-checklist-list',
   template: `
     <ul>
-      <li *ngFor="let checklist of checklists" data-testid="checklist-item">
+      <li
+        *ngFor="let checklist of checklists; trackBy: trackByFn"
+        data-testid="checklist-item"
+      >
         {{ checklist.title }}
         <button (click)="edit.emit(checklist)" data-testid="edit-checklist">
           Edit
@@ -31,4 +34,8 @@ export class ChecklistListComponent {
   @Input({ required: true }) checklists!: Checklist[];
   @Output() delete = new EventEmitter<string>();
   @Output() edit = new EventEmitter<Checklist>();
+
+  trackByFn(index: number, checklist: Checklist) {
+    return checklist.id;
+  }
 }

@@ -17,6 +17,12 @@ describe('ChecklistHeaderComponent', () => {
 
     fixture = TestBed.createComponent(ChecklistHeaderComponent);
     component = fixture.componentInstance;
+
+    component.checklist = {
+      id: 'one',
+      title: 'one',
+    };
+
     fixture.detectChanges();
   });
 

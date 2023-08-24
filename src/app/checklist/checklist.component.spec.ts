@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import ChecklistComponent from './checklist.component';
 import { ChecklistService } from '../shared/data-access/checklist.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { of } from 'rxjs';
 import { By } from '@angular/platform-browser';
 import { DebugElement } from '@angular/core';
@@ -31,9 +31,11 @@ describe('ChecklistComponent', () => {
         {
           provide: ActivatedRoute,
           useValue: {
-            paramMap: of({
-              get: (_: string) => mockParamId,
-            }),
+            paramMap: of(
+              convertToParamMap({
+                id: mockParamId,
+              })
+            ),
           },
         },
       ],

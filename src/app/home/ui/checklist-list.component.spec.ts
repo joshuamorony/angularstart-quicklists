@@ -1,7 +1,22 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { RouterTestingModule } from '@angular/router/testing';
 import { ChecklistListComponent } from './checklist-list.component';
 import { By } from '@angular/platform-browser';
 import { subscribeSpyTo } from '@hirez_io/observer-spy';
+
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Checklist } from 'src/app/shared/interfaces/checklist';
+
+@Component({
+  standalone: true,
+  selector: 'app-checklist-list',
+  template: ` <p>Hello world</p> `,
+})
+export class MockChecklistListComponent {
+  @Input({ required: true }) checklists!: Checklist[];
+  @Output() delete = new EventEmitter<string>();
+  @Output() edit = new EventEmitter<Checklist>();
+}
 
 describe('ChecklistListComponent', () => {
   let component: ChecklistListComponent;
@@ -9,7 +24,7 @@ describe('ChecklistListComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [ChecklistListComponent],
+      imports: [ChecklistListComponent, RouterTestingModule],
     })
       .overrideComponent(ChecklistListComponent, {
         remove: { imports: [] },

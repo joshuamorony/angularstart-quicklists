@@ -9,6 +9,8 @@ import { FormModalComponent } from '../shared/ui/form-modal.component';
 import { MockFormModalComponent } from '../shared/ui/form-modal.component.spec';
 import { Checklist } from '../shared/interfaces/checklist';
 import { FormBuilder } from '@angular/forms';
+import { ChecklistListComponent } from './ui/checklist-list.component';
+import { MockChecklistListComponent } from './ui/checklist-list.component.spec';
 
 describe('HomeComponent', () => {
   let component: HomeComponent;
@@ -53,8 +55,16 @@ describe('HomeComponent', () => {
       ],
     })
       .overrideComponent(HomeComponent, {
-        remove: { imports: [ModalComponent, FormModalComponent] },
-        add: { imports: [MockModalComponent, MockFormModalComponent] },
+        remove: {
+          imports: [ModalComponent, FormModalComponent, ChecklistListComponent],
+        },
+        add: {
+          imports: [
+            MockModalComponent,
+            MockFormModalComponent,
+            MockChecklistListComponent,
+          ],
+        },
       })
       .compileComponents();
 

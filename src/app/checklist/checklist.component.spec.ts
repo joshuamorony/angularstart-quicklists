@@ -141,11 +141,12 @@ describe('ChecklistComponent', () => {
 
       describe('output: save', () => {
         describe('checklist item not being edited', () => {
-          it('should next add$ source with form values', () => {
+          it('should next add$ source with form values and current checklist id', () => {
             appFormModal.triggerEventHandler('save');
-            expect(checklistItemService.add$.next).toHaveBeenCalledWith(
-              component.checklistItemForm.getRawValue()
-            );
+            expect(checklistItemService.add$.next).toHaveBeenCalledWith({
+              item: component.checklistItemForm.getRawValue(),
+              checklistId: component.checklist()?.id,
+            });
           });
         });
       });

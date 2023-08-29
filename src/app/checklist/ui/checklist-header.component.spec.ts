@@ -40,7 +40,7 @@ describe('ChecklistHeaderComponent', () => {
         By.css('[data-testid="create-checklist-item-button"]')
       );
 
-      addButton.nativeElement().click();
+      addButton.nativeElement.click();
 
       expect(observerSpy.getValuesLength()).toEqual(1);
     });

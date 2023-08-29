@@ -8,6 +8,8 @@ import { ChecklistItemListComponent } from './ui/checklist-item-list.component';
 import { ModalComponent } from '../shared/ui/modal.component';
 import { ChecklistItem } from '../shared/interfaces/checklist-item';
 import { FormBuilder } from '@angular/forms';
+import { FormModalComponent } from '../shared/ui/form-modal.component';
+import { ChecklistItemService } from './data-access/checklist-item.service';
 
 @Component({
   standalone: true,
@@ -22,7 +24,18 @@ import { FormBuilder } from '@angular/forms';
     <app-checklist-item-list [checklistItems]="[]" />
 
     <app-modal [isOpen]="!!checklistItemBeingEdited()">
-      <ng-template> </ng-template>
+      <ng-template>
+        <app-form-modal
+          title="Create item"
+          [formGroup]="checklistItemForm"
+          (save)="
+            checklistItemService.add$.next({
+              item: checklistItemForm.getRawValue(),
+              checklistId: checklist()?.id!
+            })
+          "
+        ></app-form-modal>
+      </ng-template>
     </app-modal>
   `,
   imports: [
@@ -30,10 +43,12 @@ import { FormBuilder } from '@angular/forms';
     ChecklistHeaderComponent,
     ChecklistItemListComponent,
     ModalComponent,
+    FormModalComponent,
   ],
 })
 export default class ChecklistComponent {
   checklistService = inject(ChecklistService);
+  checklistItemService = inject(ChecklistItemService);
   route = inject(ActivatedRoute);
   formBuilder = inject(FormBuilder);
 

@@ -21,7 +21,7 @@ import { ChecklistItemService } from './data-access/checklist-item.service';
       (addItem)="checklistItemBeingEdited.set({})"
     />
 
-    <app-checklist-item-list [checklistItems]="[]" />
+    <app-checklist-item-list [checklistItems]="items()" />
 
     <app-modal [isOpen]="!!checklistItemBeingEdited()">
       <ng-template>
@@ -55,6 +55,12 @@ export default class ChecklistComponent {
   checklistItemBeingEdited = signal<Partial<ChecklistItem> | null>(null);
 
   params = toSignal(this.route.paramMap);
+
+  items = computed(() =>
+    this.checklistItemService
+      .checklistItems()
+      .filter((item) => item.checklistId === this.params()?.get('id'))
+  );
 
   checklist = computed(() =>
     this.checklistService

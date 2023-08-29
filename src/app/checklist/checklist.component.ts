@@ -4,6 +4,7 @@ import { ChecklistHeaderComponent } from './ui/checklist-header.component';
 import { ChecklistService } from '../shared/data-access/checklist.service';
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { ChecklistItemListComponent } from './ui/checklist-item-list.component';
 
 @Component({
   standalone: true,
@@ -13,8 +14,10 @@ import { CommonModule } from '@angular/common';
       *ngIf="checklist() as checklist"
       [checklist]="checklist"
     />
+
+    <app-checklist-item-list [checklistItems]="[]" />
   `,
-  imports: [CommonModule, ChecklistHeaderComponent],
+  imports: [CommonModule, ChecklistHeaderComponent, ChecklistItemListComponent],
 })
 export default class ChecklistComponent {
   checklistService = inject(ChecklistService);

@@ -6,6 +6,15 @@ import { ChecklistItem } from 'src/app/shared/interfaces/checklist-item';
   standalone: true,
   selector: 'app-checklist-item-list',
   template: `
+    <ul>
+      <li
+        *ngFor="let item of checklistItems; trackBy: trackByFn"
+        data-testid="checklist-item"
+      >
+        {{ item.title }}
+      </li>
+    </ul>
+
     <div *ngIf="!checklistItems.length">
       <h2>Add an item</h2>
       <p data-testid="no-checklist-items-message">
@@ -17,4 +26,8 @@ import { ChecklistItem } from 'src/app/shared/interfaces/checklist-item';
 })
 export class ChecklistItemListComponent {
   @Input({ required: true }) checklistItems!: ChecklistItem[];
+
+  trackByFn(index: number, item: ChecklistItem) {
+    return item.id;
+  }
 }

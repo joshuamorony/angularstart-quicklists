@@ -11,6 +11,7 @@ import { FormModalComponent } from '../shared/ui/form-modal.component';
 import { MockFormModalComponent } from '../shared/ui/form-modal.component.spec';
 import { FormBuilder } from '@angular/forms';
 import { ChecklistItemService } from './data-access/checklist-item.service';
+import { ChecklistItem } from '../shared/interfaces/checklist-item';
 
 describe('ChecklistComponent', () => {
   let component: ChecklistComponent;
@@ -26,6 +27,11 @@ describe('ChecklistComponent', () => {
     { id: 'three', title: 'three' },
   ];
 
+  const mockChecklistItems = [
+    { checklistId: 'one', title: 'abc' },
+    { checklistId: 'two', title: 'def' },
+  ];
+
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [ChecklistComponent],
@@ -39,6 +45,7 @@ describe('ChecklistComponent', () => {
         {
           provide: ChecklistItemService,
           useValue: {
+            checklistItems: jest.fn().mockReturnValue(mockChecklistItems),
             add$: {
               next: jest.fn(),
             },
@@ -129,6 +136,30 @@ describe('ChecklistComponent', () => {
           const modal = fixture.debugElement.query(By.css('app-modal'));
 
           expect(modal.componentInstance.isOpen).toBeTruthy();
+        });
+      });
+    });
+
+    describe('app-checklist-item-list', () => {
+      let checklistItemList: DebugElement;
+
+      beforeEach(() => {
+        checklistItemList = fixture.debugElement.query(
+          By.css('app-checklist-item-list')
+        );
+      });
+
+      describe('input: checklistItems', () => {
+        it('should use checklist items filtered with current checklist id', () => {
+          const input: ChecklistItem[] =
+            checklistItemList.componentInstance.checklistItems;
+
+          expect(input.length).toEqual(
+            mockChecklistItems.filter(
+              (item) => item.checklistId === mockParamId
+            ).length
+          );
+          expect(input.every((item) => item.checklistId === mockParamId));
         });
       });
     });

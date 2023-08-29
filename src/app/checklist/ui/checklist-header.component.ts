@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Checklist } from 'src/app/shared/interfaces/checklist';
 
 @Component({
@@ -14,4 +14,5 @@ import { Checklist } from 'src/app/shared/interfaces/checklist';
 })
 export class ChecklistHeaderComponent {
   @Input({ required: true }) checklist!: Checklist;
+  @Output() addItem = new EventEmitter<void>();
 }

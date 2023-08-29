@@ -7,6 +7,7 @@ import { CommonModule } from '@angular/common';
 import { ChecklistItemListComponent } from './ui/checklist-item-list.component';
 import { ModalComponent } from '../shared/ui/modal.component';
 import { ChecklistItem } from '../shared/interfaces/checklist-item';
+import { FormBuilder } from '@angular/forms';
 
 @Component({
   standalone: true,
@@ -34,6 +35,7 @@ import { ChecklistItem } from '../shared/interfaces/checklist-item';
 export default class ChecklistComponent {
   checklistService = inject(ChecklistService);
   route = inject(ActivatedRoute);
+  formBuilder = inject(FormBuilder);
 
   checklistItemBeingEdited = signal<Partial<ChecklistItem> | null>(null);
 
@@ -44,4 +46,8 @@ export default class ChecklistComponent {
       .checklists()
       .find((checklist) => checklist.id === this.params()?.get('id'))
   );
+
+  checklistItemForm = this.formBuilder.nonNullable.group({
+    title: [''],
+  });
 }

@@ -38,7 +38,11 @@ describe('ChecklistComponent', () => {
         },
         {
           provide: ChecklistItemService,
-          useValue: {},
+          useValue: {
+            add$: {
+              next: jest.fn(),
+            },
+          },
         },
         {
           provide: ActivatedRoute,

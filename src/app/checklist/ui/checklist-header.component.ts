@@ -9,6 +9,12 @@ import { Checklist } from 'src/app/shared/interfaces/checklist';
       <h1 data-testid="checklist-title">
         {{ checklist.title }}
       </h1>
+      <button
+        (click)="addItem.emit()"
+        data-testid="create-checklist-item-button"
+      >
+        Add item
+      </button>
     </header>
   `,
 })

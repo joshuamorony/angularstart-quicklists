@@ -5,6 +5,8 @@ import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { of } from 'rxjs';
 import { By } from '@angular/platform-browser';
 import { DebugElement } from '@angular/core';
+import { ModalComponent } from '../shared/ui/modal.component';
+import { MockModalComponent } from '../shared/ui/modal.component.spec';
 
 describe('ChecklistComponent', () => {
   let component: ChecklistComponent;
@@ -41,8 +43,8 @@ describe('ChecklistComponent', () => {
       ],
     })
       .overrideComponent(ChecklistComponent, {
-        remove: { imports: [] },
-        add: { imports: [] },
+        remove: { imports: [ModalComponent] },
+        add: { imports: [MockModalComponent] },
       })
       .compileComponents();
 
@@ -73,6 +75,30 @@ describe('ChecklistComponent', () => {
         expect(checklistHeader.componentInstance.checklist).toEqual(
           matchingChecklist
         );
+      });
+    });
+
+    describe('app-modal', () => {
+      let appModal: DebugElement;
+
+      beforeEach(() => {
+        appModal = fixture.debugElement.query(By.css('app-modal'));
+      });
+
+      describe('input: isOpen', () => {
+        it('should be truthy when checklist header emits addItem', () => {
+          const checklistHeader = fixture.debugElement.query(
+            By.css('app-checklist-header')
+          );
+
+          checklistHeader.triggerEventHandler('addItem', null);
+
+          fixture.detectChanges();
+
+          const modal = fixture.debugElement.query(By.css('app-modal'));
+
+          expect(modal.componentInstance.isOpen).toBeTruthy();
+        });
       });
     });
   });

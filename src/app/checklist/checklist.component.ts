@@ -71,4 +71,14 @@ export default class ChecklistComponent {
   checklistItemForm = this.formBuilder.nonNullable.group({
     title: [''],
   });
+
+  constructor() {
+    effect(() => {
+      const checklistItem = this.checklistItemBeingEdited();
+
+      if (!checklistItem) {
+        this.checklistItemForm.reset();
+      }
+    });
+  }
 }

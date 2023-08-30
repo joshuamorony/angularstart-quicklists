@@ -37,4 +37,30 @@ describe('ChecklistItemService', () => {
       expect(service.checklistItems().length).toEqual(2);
     });
   });
+
+  describe('source: remove$', () => {
+    beforeEach(() => {
+      // add some test data
+      service.add$.next({ item: { title: 'abc' }, checklistId: '1' });
+      service.add$.next({ item: { title: 'def' }, checklistId: '2' });
+      service.add$.next({ item: { title: 'ghi' }, checklistId: '3' });
+    });
+
+    it('should remove the checklist with the supplied id', () => {
+      const testChecklistItem = service.checklistItems()[0];
+      service.remove$.next(testChecklistItem.id);
+      expect(
+        service
+          .checklistItems()
+          .find((checklistItem) => checklistItem.id === testChecklistItem.id)
+      ).toBeFalsy();
+    });
+
+    it('should NOT remove checklists that do not match the id', () => {
+      const testChecklistItem = service.checklistItems()[0];
+      const prevLength = service.checklistItems().length;
+      service.remove$.next(testChecklistItem.id);
+      expect(service.checklistItems().length).toEqual(prevLength - 1);
+    });
+  });
 });

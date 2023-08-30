@@ -49,6 +49,9 @@ describe('ChecklistComponent', () => {
             add$: {
               next: jest.fn(),
             },
+            remove$: {
+              next: jest.fn(),
+            },
           },
         },
         {
@@ -160,6 +163,17 @@ describe('ChecklistComponent', () => {
             ).length
           );
           expect(input.every((item) => item.checklistId === mockParamId));
+        });
+      });
+
+      describe('output: delete', () => {
+        it('should next remove$ source with emitted value', () => {
+          const testId = 5;
+          checklistItemList.triggerEventHandler('delete', testId);
+
+          expect(checklistItemService.remove$.next).toHaveBeenCalledWith(
+            testId
+          );
         });
       });
     });

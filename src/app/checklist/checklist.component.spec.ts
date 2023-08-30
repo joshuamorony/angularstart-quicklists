@@ -185,6 +185,18 @@ describe('ChecklistComponent', () => {
           });
         });
       });
+
+      describe('output: close', () => {
+        it('should reset form', () => {
+          component.checklistItemForm.get('title')?.setValue('test');
+          fixture.detectChanges();
+
+          appFormModal.triggerEventHandler('close');
+          fixture.detectChanges();
+
+          expect(component.checklistItemForm.reset).toHaveBeenCalled();
+        });
+      });
     });
   });
 });

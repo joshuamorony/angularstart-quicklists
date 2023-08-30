@@ -187,6 +187,15 @@ describe('ChecklistComponent', () => {
       });
 
       describe('output: close', () => {
+        it('should close app-modal', () => {
+          appFormModal.triggerEventHandler('close');
+          fixture.detectChanges();
+
+          const modal = fixture.debugElement.query(By.css('app-modal'));
+
+          expect(modal.componentInstance.isOpen).toBeFalsy();
+        });
+
         it('should reset form', () => {
           component.checklistItemForm.get('title')?.setValue('test');
           fixture.detectChanges();

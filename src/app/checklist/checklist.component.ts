@@ -21,7 +21,10 @@ import { ChecklistItemService } from './data-access/checklist-item.service';
       (addItem)="checklistItemBeingEdited.set({})"
     />
 
-    <app-checklist-item-list [checklistItems]="items()" />
+    <app-checklist-item-list
+      [checklistItems]="items()"
+      (delete)="checklistItemService.remove$.next($event)"
+    />
 
     <app-modal [isOpen]="!!checklistItemBeingEdited()">
       <ng-template>

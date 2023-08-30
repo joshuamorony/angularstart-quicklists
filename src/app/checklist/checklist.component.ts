@@ -34,6 +34,7 @@ import { ChecklistItemService } from './data-access/checklist-item.service';
               checklistId: checklist()?.id!
             })
           "
+          (close)="checklistItemBeingEdited.set(null)"
         ></app-form-modal>
       </ng-template>
     </app-modal>

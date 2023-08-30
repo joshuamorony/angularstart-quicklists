@@ -41,8 +41,11 @@ describe('ChecklistItemService', () => {
   describe('source: remove$', () => {
     beforeEach(() => {
       // add some test data
+      Date.now = jest.fn(() => 1);
       service.add$.next({ item: { title: 'abc' }, checklistId: '1' });
+      Date.now = jest.fn(() => 2);
       service.add$.next({ item: { title: 'def' }, checklistId: '2' });
+      Date.now = jest.fn(() => 3);
       service.add$.next({ item: { title: 'ghi' }, checklistId: '3' });
     });
 

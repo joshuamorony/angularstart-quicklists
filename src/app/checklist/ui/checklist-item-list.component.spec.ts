@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ChecklistItemListComponent } from './checklist-item-list.component';
 import { By } from '@angular/platform-browser';
+import { subscribeSpyTo } from '@hirez_io/observer-spy';
 
 describe('ChecklistItemListComponent', () => {
   let component: ChecklistItemListComponent;
@@ -66,6 +67,24 @@ describe('ChecklistItemListComponent', () => {
       );
 
       expect(emptyMessage).toBeFalsy();
+    });
+  });
+
+  describe('output: delete', () => {
+    it('should emit checklist item id to be deleted', () => {
+      const testData = [{ id: '1', title: 'test' }] as any;
+      component.checklistItems = testData;
+
+      const observerSpy = subscribeSpyTo(component.delete);
+
+      fixture.detectChanges();
+
+      const deleteButton = fixture.debugElement.query(
+        By.css('[data-testid="delete-checklist-item-button"]')
+      );
+      deleteButton.nativeElement.click();
+
+      expect(observerSpy.getLastValue()).toEqual(testData[0].id);
     });
   });
 });

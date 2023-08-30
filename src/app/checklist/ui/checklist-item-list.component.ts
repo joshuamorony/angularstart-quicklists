@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ChecklistItem } from 'src/app/shared/interfaces/checklist-item';
 
 @Component({
@@ -12,6 +12,12 @@ import { ChecklistItem } from 'src/app/shared/interfaces/checklist-item';
         data-testid="checklist-item"
       >
         {{ item.title }}
+        <button
+          (click)="delete.emit(item.id)"
+          data-testid="delete-checklist-item-button"
+        >
+          Delete
+        </button>
       </li>
     </ul>
 
@@ -26,6 +32,7 @@ import { ChecklistItem } from 'src/app/shared/interfaces/checklist-item';
 })
 export class ChecklistItemListComponent {
   @Input({ required: true }) checklistItems!: ChecklistItem[];
+  @Output() delete = new EventEmitter<string>();
 
   trackByFn(index: number, item: ChecklistItem) {
     return item.id;

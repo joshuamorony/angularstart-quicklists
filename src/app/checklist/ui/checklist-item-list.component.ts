@@ -11,6 +11,7 @@ import { ChecklistItem } from 'src/app/shared/interfaces/checklist-item';
         *ngFor="let item of checklistItems; trackBy: trackByFn"
         data-testid="checklist-item"
       >
+        <span *ngIf="item.checked" data-testid="checked-indicator">[DONE]</span>
         {{ item.title }}
         <button
           (click)="edit.emit(item)"

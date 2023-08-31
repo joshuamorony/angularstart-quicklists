@@ -51,7 +51,12 @@ describe('ChecklistItemService', () => {
 
     it('should edit the checklist with the supplied data', () => {
       const checklist = service.checklistItems()[0];
-      expect(checklist).toEqual({ id: checklist.id, checklistId, ...postEdit });
+      expect(checklist).toEqual({
+        id: checklist.id,
+        checklistId,
+        checked: false,
+        ...postEdit,
+      });
     });
   });
 

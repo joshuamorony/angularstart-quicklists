@@ -63,5 +63,16 @@ export class ChecklistItemService {
         checklistItems: state.checklistItems.filter((item) => item.id !== id),
       }))
     );
+
+    this.toggle$.pipe(takeUntilDestroyed()).subscribe((checklistItemId) =>
+      this.state.update((state) => ({
+        ...state,
+        checklistItems: state.checklistItems.map((item) =>
+          item.id === checklistItemId
+            ? { ...item, checked: !item.checked }
+            : item
+        ),
+      }))
+    );
   }
 }

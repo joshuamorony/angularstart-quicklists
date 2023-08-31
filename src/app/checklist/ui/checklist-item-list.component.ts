@@ -14,6 +14,12 @@ import { ChecklistItem } from 'src/app/shared/interfaces/checklist-item';
         <span *ngIf="item.checked" data-testid="checked-indicator">[DONE]</span>
         {{ item.title }}
         <button
+          (click)="toggle.emit(item.id)"
+          data-testid="toggle-checklist-item-button"
+        >
+          Toggle
+        </button>
+        <button
           (click)="edit.emit(item)"
           data-testid="edit-checklist-item-button"
         >

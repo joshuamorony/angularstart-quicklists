@@ -25,6 +25,7 @@ import { ChecklistItemService } from './data-access/checklist-item.service';
       [checklistItems]="items()"
       (delete)="checklistItemService.remove$.next($event)"
       (edit)="checklistItemBeingEdited.set($event)"
+      (toggle)="checklistItemService.toggle$.next($event)"
     />
 
     <app-modal [isOpen]="!!checklistItemBeingEdited()">

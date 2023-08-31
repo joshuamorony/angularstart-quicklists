@@ -21,4 +21,5 @@ import { Checklist } from 'src/app/shared/interfaces/checklist';
 export class ChecklistHeaderComponent {
   @Input({ required: true }) checklist!: Checklist;
   @Output() addItem = new EventEmitter<void>();
+  @Output() resetChecklist = new EventEmitter<void>();
 }

@@ -45,4 +45,18 @@ describe('ChecklistHeaderComponent', () => {
       expect(observerSpy.getValuesLength()).toEqual(1);
     });
   });
+
+  describe('output: resetChecklist', () => {
+    it('should emit with the current checklistId when reset button is clicked', () => {
+      const observerSpy = subscribeSpyTo(component.resetChecklist);
+
+      const resetButton = fixture.debugElement.query(
+        By.css('[data-testid="reset-items-button"]')
+      );
+
+      resetButton.nativeElement.click();
+
+      expect(observerSpy.getLastValue()).toEqual(component.checklist.id);
+    });
+  });
 });

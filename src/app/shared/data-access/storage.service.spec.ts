@@ -30,5 +30,17 @@ describe('StorageService', () => {
       expect(getItem).toHaveBeenCalledWith('checklists');
       expect(getItem).toHaveBeenCalledTimes(1);
     });
+
+    it('should return an empty array if value is null in storage', () => {
+      const getItem = jest
+        .spyOn(Storage.prototype, 'getItem')
+        .mockReturnValue(null);
+
+      const observerSpy = subscribeSpyTo(service.loadChecklists());
+
+      expect(observerSpy.getLastValue()).toEqual([]);
+      expect(getItem).toHaveBeenCalledWith('checklists');
+      expect(getItem).toHaveBeenCalledTimes(1);
+    });
   });
 });

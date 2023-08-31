@@ -13,6 +13,12 @@ import { ChecklistItem } from 'src/app/shared/interfaces/checklist-item';
       >
         {{ item.title }}
         <button
+          (click)="edit.emit(item)"
+          data-testid="edit-checklist-item-button"
+        >
+          Edit
+        </button>
+        <button
           (click)="delete.emit(item.id)"
           data-testid="delete-checklist-item-button"
         >
@@ -33,6 +39,7 @@ import { ChecklistItem } from 'src/app/shared/interfaces/checklist-item';
 export class ChecklistItemListComponent {
   @Input({ required: true }) checklistItems!: ChecklistItem[];
   @Output() delete = new EventEmitter<string>();
+  @Output() edit = new EventEmitter<ChecklistItem>();
 
   trackByFn(index: number, item: ChecklistItem) {
     return item.id;

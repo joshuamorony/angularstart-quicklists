@@ -19,6 +19,7 @@ import { ChecklistItemService } from './data-access/checklist-item.service';
       *ngIf="checklist() as checklist"
       [checklist]="checklist"
       (addItem)="checklistItemBeingEdited.set({})"
+      (resetChecklist)="checklistItemService.reset$.next($event)"
     />
 
     <app-checklist-item-list

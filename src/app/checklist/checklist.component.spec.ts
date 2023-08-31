@@ -176,6 +176,27 @@ describe('ChecklistComponent', () => {
           );
         });
       });
+
+      describe('output: edit', () => {
+        let testChecklistItem: any;
+
+        beforeEach(() => {
+          testChecklistItem = { id: '1', title: 'test' } as any;
+          checklistItemList.triggerEventHandler('edit', testChecklistItem);
+          fixture.detectChanges();
+        });
+
+        it('should open modal', () => {
+          const modal = fixture.debugElement.query(By.css('app-modal'));
+          expect(modal.componentInstance.isOpen).toBeTruthy();
+        });
+
+        it('should patch form with checklist title', () => {
+          expect(component.checklistItemForm.patchValue).toHaveBeenCalledWith({
+            title: testChecklistItem.title,
+          });
+        });
+      });
     });
 
     describe('app-form-modal', () => {

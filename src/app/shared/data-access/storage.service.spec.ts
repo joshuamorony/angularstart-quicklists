@@ -10,6 +10,8 @@ describe('StorageService', () => {
       providers: [StorageService],
     });
 
+    jest.clearAllMocks();
+
     service = TestBed.inject(StorageService);
   });
 

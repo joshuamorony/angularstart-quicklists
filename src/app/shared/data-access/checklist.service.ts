@@ -1,4 +1,4 @@
-import { Injectable, computed, signal } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject } from 'rxjs';
 import {
@@ -7,6 +7,7 @@ import {
   EditChecklist,
   RemoveChecklist,
 } from '../interfaces/checklist';
+import { ChecklistItemService } from 'src/app/checklist/data-access/checklist-item.service';
 
 export interface ChecklistsState {
   checklists: Checklist[];
@@ -16,6 +17,8 @@ export interface ChecklistsState {
   providedIn: 'root',
 })
 export class ChecklistService {
+  private checklistItemService = inject(ChecklistItemService);
+
   // state
   private state = signal<ChecklistsState>({
     checklists: [],
@@ -27,7 +30,7 @@ export class ChecklistService {
   // sources
   add$ = new Subject<AddChecklist>();
   edit$ = new Subject<EditChecklist>();
-  remove$ = new Subject<RemoveChecklist>();
+  remove$ = this.checklistItemService.checklistRemoved$;
 
   constructor() {
     this.add$.pipe(takeUntilDestroyed()).subscribe((checklist) =>

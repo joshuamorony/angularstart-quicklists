@@ -55,6 +55,9 @@ describe('ChecklistComponent', () => {
             edit$: {
               next: jest.fn(),
             },
+            toggle$: {
+              next: jest.fn(),
+            },
           },
         },
         {
@@ -175,6 +178,17 @@ describe('ChecklistComponent', () => {
           checklistItemList.triggerEventHandler('delete', testId);
 
           expect(checklistItemService.remove$.next).toHaveBeenCalledWith(
+            testId
+          );
+        });
+      });
+
+      describe('output: toggle', () => {
+        it('should next toggle$ source with emitted value', () => {
+          const testId = 5;
+          checklistItemList.triggerEventHandler('toggle', testId);
+
+          expect(checklistItemService.toggle$.next).toHaveBeenCalledWith(
             testId
           );
         });

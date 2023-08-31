@@ -102,7 +102,7 @@ describe('ChecklistItemListComponent', () => {
 
       editButton.nativeElement.click();
 
-      expect(observerSpy.getLastValue()).toEqual(testData);
+      expect(observerSpy.getLastValue()).toEqual(testData[0]);
     });
   });
 });

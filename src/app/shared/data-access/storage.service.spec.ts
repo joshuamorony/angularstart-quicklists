@@ -45,4 +45,19 @@ describe('StorageService', () => {
       expect(getItem).toHaveBeenCalledTimes(1);
     });
   });
+
+  describe('saveChecklists()', () => {
+    it('should call setItem of local storage on checklists key with supplied data', () => {
+      const setItem = jest.spyOn(Storage.prototype, 'setItem');
+
+      const testChecklists = [{}, {}] as any;
+
+      service.saveChecklists(testChecklists);
+
+      expect(setItem).toHaveBeenCalledWith(
+        'checklists',
+        JSON.stringify(testChecklists)
+      );
+    });
+  });
 });

@@ -10,6 +10,12 @@ import { Checklist } from 'src/app/shared/interfaces/checklist';
         {{ checklist.title }}
       </h1>
       <button
+        (click)="resetChecklist.emit(checklist.id)"
+        data-testid="reset-items-button"
+      >
+        Reset
+      </button>
+      <button
         (click)="addItem.emit()"
         data-testid="create-checklist-item-button"
       >

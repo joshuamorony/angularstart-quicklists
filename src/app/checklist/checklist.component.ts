@@ -24,6 +24,7 @@ import { ChecklistItemService } from './data-access/checklist-item.service';
     <app-checklist-item-list
       [checklistItems]="items()"
       (delete)="checklistItemService.remove$.next($event)"
+      (edit)="checklistItemBeingEdited.set($event)"
     />
 
     <app-modal [isOpen]="!!checklistItemBeingEdited()">
@@ -82,6 +83,10 @@ export default class ChecklistComponent {
 
       if (!checklistItem) {
         this.checklistItemForm.reset();
+      } else {
+        this.checklistItemForm.patchValue({
+          title: checklistItem.title,
+        });
       }
     });
   }

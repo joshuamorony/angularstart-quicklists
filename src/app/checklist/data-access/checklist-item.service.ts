@@ -75,5 +75,14 @@ export class ChecklistItemService {
         ),
       }))
     );
+
+    this.reset$.pipe(takeUntilDestroyed()).subscribe((checklistId) =>
+      this.state.update((state) => ({
+        ...state,
+        checklistItems: state.checklistItems.map((item) =>
+          item.checklistId === checklistId ? { ...item, checked: false } : item
+        ),
+      }))
+    );
   }
 }

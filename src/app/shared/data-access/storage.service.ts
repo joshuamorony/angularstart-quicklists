@@ -24,4 +24,8 @@ export class StorageService {
     const checklists = this.storage.getItem('checklists');
     return of(checklists ? (JSON.parse(checklists) as Checklist[]) : []);
   }
+
+  saveChecklists(checklists: Checklist[]) {
+    this.storage.setItem('checklists', JSON.stringify(checklists));
+  }
 }

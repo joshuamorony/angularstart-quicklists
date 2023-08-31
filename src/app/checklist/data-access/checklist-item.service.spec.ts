@@ -88,4 +88,38 @@ describe('ChecklistItemService', () => {
       expect(service.checklistItems().length).toEqual(prevLength - 1);
     });
   });
+
+  describe('source: remove$', () => {
+    beforeEach(() => {
+      // add some test data
+      Date.now = jest.fn(() => 1);
+      service.add$.next({ item: { title: 'abc' }, checklistId: '1' });
+      Date.now = jest.fn(() => 2);
+      service.add$.next({ item: { title: 'def' }, checklistId: '2' });
+      Date.now = jest.fn(() => 3);
+      service.add$.next({ item: { title: 'ghi' }, checklistId: '3' });
+    });
+
+    it('should toggle the checklist with the supplied id', () => {
+      const testChecklistItem = service.checklistItems()[0];
+      service.toggle$.next(testChecklistItem.id);
+      expect(
+        service
+          .checklistItems()
+          .find((checklistItem) => checklistItem.id === testChecklistItem.id)
+          ?.checked
+      ).toEqual(true);
+    });
+
+    it('should NOT toggle checklists that do not match the id', () => {
+      const testChecklistItem = service.checklistItems()[0];
+      service.toggle$.next(testChecklistItem.id);
+      expect(
+        service
+          .checklistItems()
+          .filter((checklistItem) => checklistItem.id !== testChecklistItem.id)
+          .every((item) => !item.checked)
+      ).toBeTruthy();
+    });
+  });
 });

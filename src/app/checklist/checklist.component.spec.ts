@@ -58,6 +58,9 @@ describe('ChecklistComponent', () => {
             toggle$: {
               next: jest.fn(),
             },
+            reset$: {
+              next: jest.fn(),
+            },
           },
         },
         {
@@ -125,155 +128,159 @@ describe('ChecklistComponent', () => {
       });
     });
 
-    describe('app-modal', () => {
-      let appModal: DebugElement;
+    describe('output: resetChecklist', () => {
+      it('should next reset$ source with emitted value', () => {
+        const testId = 5;
+        checklistHeader.triggerEventHandler('resetChecklist', testId);
 
-      beforeEach(() => {
-        appModal = fixture.debugElement.query(By.css('app-modal'));
+        expect(checklistItemService.reset$.next).toHaveBeenCalledWith(testId);
       });
+    });
+  });
 
-      describe('input: isOpen', () => {
-        it('should be truthy when checklist header emits addItem', () => {
-          const checklistHeader = fixture.debugElement.query(
-            By.css('app-checklist-header')
-          );
+  describe('app-modal', () => {
+    let appModal: DebugElement;
 
-          checklistHeader.triggerEventHandler('addItem', null);
+    beforeEach(() => {
+      appModal = fixture.debugElement.query(By.css('app-modal'));
+    });
 
-          fixture.detectChanges();
+    describe('input: isOpen', () => {
+      it('should be truthy when checklist header emits addItem', () => {
+        const checklistHeader = fixture.debugElement.query(
+          By.css('app-checklist-header')
+        );
 
-          const modal = fixture.debugElement.query(By.css('app-modal'));
+        checklistHeader.triggerEventHandler('addItem', null);
 
-          expect(modal.componentInstance.isOpen).toBeTruthy();
-        });
+        fixture.detectChanges();
+
+        const modal = fixture.debugElement.query(By.css('app-modal'));
+
+        expect(modal.componentInstance.isOpen).toBeTruthy();
+      });
+    });
+  });
+
+  describe('app-checklist-item-list', () => {
+    let checklistItemList: DebugElement;
+
+    beforeEach(() => {
+      checklistItemList = fixture.debugElement.query(
+        By.css('app-checklist-item-list')
+      );
+    });
+
+    describe('input: checklistItems', () => {
+      it('should use checklist items filtered with current checklist id', () => {
+        const input: ChecklistItem[] =
+          checklistItemList.componentInstance.checklistItems;
+
+        expect(input.length).toEqual(
+          mockChecklistItems.filter((item) => item.checklistId === mockParamId)
+            .length
+        );
+        expect(input.every((item) => item.checklistId === mockParamId));
       });
     });
 
-    describe('app-checklist-item-list', () => {
-      let checklistItemList: DebugElement;
+    describe('output: delete', () => {
+      it('should next remove$ source with emitted value', () => {
+        const testId = 5;
+        checklistItemList.triggerEventHandler('delete', testId);
+
+        expect(checklistItemService.remove$.next).toHaveBeenCalledWith(testId);
+      });
+    });
+
+    describe('output: toggle', () => {
+      it('should next toggle$ source with emitted value', () => {
+        const testId = 5;
+        checklistItemList.triggerEventHandler('toggle', testId);
+
+        expect(checklistItemService.toggle$.next).toHaveBeenCalledWith(testId);
+      });
+    });
+
+    describe('output: edit', () => {
+      let testChecklistItem: any;
 
       beforeEach(() => {
-        checklistItemList = fixture.debugElement.query(
-          By.css('app-checklist-item-list')
-        );
+        testChecklistItem = { id: '1', title: 'test' } as any;
+        checklistItemList.triggerEventHandler('edit', testChecklistItem);
+        fixture.detectChanges();
       });
 
-      describe('input: checklistItems', () => {
-        it('should use checklist items filtered with current checklist id', () => {
-          const input: ChecklistItem[] =
-            checklistItemList.componentInstance.checklistItems;
+      it('should open modal', () => {
+        const modal = fixture.debugElement.query(By.css('app-modal'));
+        expect(modal.componentInstance.isOpen).toBeTruthy();
+      });
 
-          expect(input.length).toEqual(
-            mockChecklistItems.filter(
-              (item) => item.checklistId === mockParamId
-            ).length
-          );
-          expect(input.every((item) => item.checklistId === mockParamId));
+      it('should patch form with checklist title', () => {
+        expect(component.checklistItemForm.patchValue).toHaveBeenCalledWith({
+          title: testChecklistItem.title,
+        });
+      });
+    });
+  });
+
+  describe('app-form-modal', () => {
+    let appFormModal: DebugElement;
+
+    beforeEach(() => {
+      component.checklistItemBeingEdited.set({});
+      fixture.detectChanges();
+
+      appFormModal = fixture.debugElement.query(By.css('app-form-modal'));
+    });
+
+    describe('output: save', () => {
+      describe('checklist item not being edited', () => {
+        it('should next add$ source with form values and current checklist id', () => {
+          appFormModal.triggerEventHandler('save');
+          expect(checklistItemService.add$.next).toHaveBeenCalledWith({
+            item: component.checklistItemForm.getRawValue(),
+            checklistId: component.checklist()?.id,
+          });
         });
       });
 
-      describe('output: delete', () => {
-        it('should next remove$ source with emitted value', () => {
-          const testId = 5;
-          checklistItemList.triggerEventHandler('delete', testId);
-
-          expect(checklistItemService.remove$.next).toHaveBeenCalledWith(
-            testId
-          );
-        });
-      });
-
-      describe('output: toggle', () => {
-        it('should next toggle$ source with emitted value', () => {
-          const testId = 5;
-          checklistItemList.triggerEventHandler('toggle', testId);
-
-          expect(checklistItemService.toggle$.next).toHaveBeenCalledWith(
-            testId
-          );
-        });
-      });
-
-      describe('output: edit', () => {
+      describe('checklist item being edited', () => {
         let testChecklistItem: any;
 
         beforeEach(() => {
-          testChecklistItem = { id: '1', title: 'test' } as any;
-          checklistItemList.triggerEventHandler('edit', testChecklistItem);
-          fixture.detectChanges();
+          testChecklistItem = { id: '5', title: 'hello' };
+          component.checklistItemBeingEdited.set(testChecklistItem);
         });
 
-        it('should open modal', () => {
-          const modal = fixture.debugElement.query(By.css('app-modal'));
-          expect(modal.componentInstance.isOpen).toBeTruthy();
-        });
-
-        it('should patch form with checklist title', () => {
-          expect(component.checklistItemForm.patchValue).toHaveBeenCalledWith({
-            title: testChecklistItem.title,
+        it('should next edit$ source with current id and form data', () => {
+          appFormModal.triggerEventHandler('save');
+          expect(checklistItemService.edit$.next).toHaveBeenCalledWith({
+            id: testChecklistItem.id,
+            data: component.checklistItemForm.getRawValue(),
           });
         });
       });
     });
 
-    describe('app-form-modal', () => {
-      let appFormModal: DebugElement;
-
-      beforeEach(() => {
-        component.checklistItemBeingEdited.set({});
+    describe('output: close', () => {
+      it('should close app-modal', () => {
+        appFormModal.triggerEventHandler('close');
         fixture.detectChanges();
 
-        appFormModal = fixture.debugElement.query(By.css('app-form-modal'));
+        const modal = fixture.debugElement.query(By.css('app-modal'));
+
+        expect(modal.componentInstance.isOpen).toBeFalsy();
       });
 
-      describe('output: save', () => {
-        describe('checklist item not being edited', () => {
-          it('should next add$ source with form values and current checklist id', () => {
-            appFormModal.triggerEventHandler('save');
-            expect(checklistItemService.add$.next).toHaveBeenCalledWith({
-              item: component.checklistItemForm.getRawValue(),
-              checklistId: component.checklist()?.id,
-            });
-          });
-        });
+      it('should reset form', () => {
+        component.checklistItemForm.get('title')?.setValue('test');
+        fixture.detectChanges();
 
-        describe('checklist item being edited', () => {
-          let testChecklistItem: any;
+        appFormModal.triggerEventHandler('close');
+        fixture.detectChanges();
 
-          beforeEach(() => {
-            testChecklistItem = { id: '5', title: 'hello' };
-            component.checklistItemBeingEdited.set(testChecklistItem);
-          });
-
-          it('should next edit$ source with current id and form data', () => {
-            appFormModal.triggerEventHandler('save');
-            expect(checklistItemService.edit$.next).toHaveBeenCalledWith({
-              id: testChecklistItem.id,
-              data: component.checklistItemForm.getRawValue(),
-            });
-          });
-        });
-      });
-
-      describe('output: close', () => {
-        it('should close app-modal', () => {
-          appFormModal.triggerEventHandler('close');
-          fixture.detectChanges();
-
-          const modal = fixture.debugElement.query(By.css('app-modal'));
-
-          expect(modal.componentInstance.isOpen).toBeFalsy();
-        });
-
-        it('should reset form', () => {
-          component.checklistItemForm.get('title')?.setValue('test');
-          fixture.detectChanges();
-
-          appFormModal.triggerEventHandler('close');
-          fixture.detectChanges();
-
-          expect(component.checklistItemForm.reset).toHaveBeenCalled();
-        });
+        expect(component.checklistItemForm.reset).toHaveBeenCalled();
       });
     });
   });

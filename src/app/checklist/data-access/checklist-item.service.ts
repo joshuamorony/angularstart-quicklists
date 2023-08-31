@@ -31,6 +31,7 @@ export class ChecklistItemService {
   remove$ = new Subject<RemoveChecklistItem>();
   edit$ = new Subject<EditChecklistItem>();
   toggle$ = new Subject<RemoveChecklistItem>();
+  reset$ = new Subject<RemoveChecklistItem>();
 
   constructor() {
     this.add$.pipe(takeUntilDestroyed()).subscribe((checklistItem) =>

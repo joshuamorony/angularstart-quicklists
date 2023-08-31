@@ -122,4 +122,41 @@ describe('ChecklistItemService', () => {
       ).toBeTruthy();
     });
   });
+
+  describe('source: reset$', () => {
+    beforeEach(() => {
+      // add some test data
+      Date.now = jest.fn(() => 1);
+      service.add$.next({ item: { title: 'abc' }, checklistId: '1' });
+      Date.now = jest.fn(() => 2);
+      service.add$.next({ item: { title: 'def' }, checklistId: '1' });
+      Date.now = jest.fn(() => 3);
+      service.add$.next({ item: { title: 'ghi' }, checklistId: '3' });
+
+      service.toggle$.next('1');
+      service.toggle$.next('2');
+      service.toggle$.next('3');
+    });
+
+    it('should set checked of all items matching checklistId to false', () => {
+      service.reset$.next('1');
+
+      expect(
+        service
+          .checklistItems()
+          .filter((item) => item.checklistId === '1')
+          .every((item) => item.checked === false)
+      ).toBeTruthy();
+    });
+
+    it('should not set checked status of NON matching items to false', () => {
+      service.reset$.next('1');
+      expect(
+        service
+          .checklistItems()
+          .filter((item) => item.checklistId !== '1')
+          .every((item) => item.checked === true)
+      ).toBeTruthy();
+    });
+  });
 });

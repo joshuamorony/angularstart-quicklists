@@ -89,7 +89,7 @@ describe('ChecklistItemService', () => {
     });
   });
 
-  describe('source: remove$', () => {
+  describe('source: toggle$', () => {
     beforeEach(() => {
       // add some test data
       Date.now = jest.fn(() => 1);
@@ -156,6 +156,32 @@ describe('ChecklistItemService', () => {
           .checklistItems()
           .filter((item) => item.checklistId !== '1')
           .every((item) => item.checked === true)
+      ).toBeTruthy();
+    });
+  });
+
+  describe('source: checklistRemoved$', () => {
+    beforeEach(() => {
+      // add some test data
+      Date.now = jest.fn(() => 1);
+      service.add$.next({ item: { title: 'abc' }, checklistId: '1' });
+      Date.now = jest.fn(() => 2);
+      service.add$.next({ item: { title: 'def' }, checklistId: '1' });
+      Date.now = jest.fn(() => 3);
+      service.add$.next({ item: { title: 'ghi' }, checklistId: '3' });
+    });
+
+    it('should remove every checklist item that matches checklistId', () => {
+      service.checklistRemoved$.next('1');
+      expect(
+        service.checklistItems().find((item) => item.checklistId === '1')
+      ).toBeFalsy();
+    });
+
+    it('should NOT remove checklist items that dont match the checklistId', () => {
+      service.checklistRemoved$.next('1');
+      expect(
+        service.checklistItems().find((item) => item.checklistId === '3')
       ).toBeTruthy();
     });
   });

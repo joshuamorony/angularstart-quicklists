@@ -47,6 +47,15 @@ export class ChecklistItemService {
       }))
     );
 
+    this.edit$.pipe(takeUntilDestroyed()).subscribe((update) =>
+      this.state.update((state) => ({
+        ...state,
+        checklistItems: state.checklistItems.map((item) =>
+          item.id === update.id ? { ...item, title: update.data.title } : item
+        ),
+      }))
+    );
+
     this.remove$.pipe(takeUntilDestroyed()).subscribe((id) =>
       this.state.update((state) => ({
         ...state,

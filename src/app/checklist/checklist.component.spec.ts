@@ -52,6 +52,9 @@ describe('ChecklistComponent', () => {
             remove$: {
               next: jest.fn(),
             },
+            edit$: {
+              next: jest.fn(),
+            },
           },
         },
         {
@@ -216,6 +219,23 @@ describe('ChecklistComponent', () => {
             expect(checklistItemService.add$.next).toHaveBeenCalledWith({
               item: component.checklistItemForm.getRawValue(),
               checklistId: component.checklist()?.id,
+            });
+          });
+        });
+
+        describe('checklist item being edited', () => {
+          let testChecklistItem: any;
+
+          beforeEach(() => {
+            testChecklistItem = { id: '5', title: 'hello' };
+            component.checklistItemBeingEdited.set(testChecklistItem);
+          });
+
+          it('should next edit$ source with current id and form data', () => {
+            appFormModal.triggerEventHandler('save');
+            expect(checklistItemService.edit$.next).toHaveBeenCalledWith({
+              id: testChecklistItem.id,
+              data: component.checklistItemForm.getRawValue(),
             });
           });
         });

@@ -4,6 +4,7 @@ import { Subject } from 'rxjs';
 import {
   AddChecklistItem,
   ChecklistItem,
+  EditChecklistItem,
   RemoveChecklistItem,
 } from 'src/app/shared/interfaces/checklist-item';
 
@@ -28,6 +29,7 @@ export class ChecklistItemService {
   // sources
   add$ = new Subject<AddChecklistItem>();
   remove$ = new Subject<RemoveChecklistItem>();
+  edit$ = new Subject<EditChecklistItem>();
 
   constructor() {
     this.add$.pipe(takeUntilDestroyed()).subscribe((checklistItem) =>

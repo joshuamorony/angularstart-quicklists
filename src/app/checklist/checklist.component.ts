@@ -33,10 +33,15 @@ import { ChecklistItemService } from './data-access/checklist-item.service';
           title="Create item"
           [formGroup]="checklistItemForm"
           (save)="
-            checklistItemService.add$.next({
-              item: checklistItemForm.getRawValue(),
-              checklistId: checklist()?.id!
-            })
+            checklistItemBeingEdited()?.id
+              ? checklistItemService.edit$.next({
+                id: checklistItemBeingEdited()!.id!,
+                data: checklistItemForm.getRawValue(),
+              })
+              : checklistItemService.add$.next({
+                item: checklistItemForm.getRawValue(),
+                checklistId: checklist()?.id!,
+              })
           "
           (close)="checklistItemBeingEdited.set(null)"
         ></app-form-modal>

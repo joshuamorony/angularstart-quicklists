@@ -88,6 +88,24 @@ describe('ChecklistItemListComponent', () => {
     });
   });
 
+  describe('output: toggle', () => {
+    it('should emit checklist item id to be toggled', () => {
+      const testData = [{ id: '1', title: 'test' }] as any;
+      component.checklistItems = testData;
+
+      const observerSpy = subscribeSpyTo(component.toggle);
+
+      fixture.detectChanges();
+
+      const toggleButton = fixture.debugElement.query(
+        By.css('[data-testid="toggle-checklist-item-button"]')
+      );
+      toggleButton.nativeElement.click();
+
+      expect(observerSpy.getLastValue()).toEqual(testData[0].id);
+    });
+  });
+
   describe('output: edit', () => {
     it('should emit checklist item to be edited', () => {
       const testData = [{ id: '1', title: 'test' }] as any;

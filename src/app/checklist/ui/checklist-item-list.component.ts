@@ -41,6 +41,7 @@ export class ChecklistItemListComponent {
   @Input({ required: true }) checklistItems!: ChecklistItem[];
   @Output() delete = new EventEmitter<string>();
   @Output() edit = new EventEmitter<ChecklistItem>();
+  @Output() toggle = new EventEmitter<string>();
 
   trackByFn(index: number, item: ChecklistItem) {
     return item.id;

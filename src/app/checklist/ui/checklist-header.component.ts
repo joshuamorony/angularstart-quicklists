@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { RouterModule } from '@angular/router';
 import { Checklist } from 'src/app/shared/interfaces/checklist';
 
 @Component({
@@ -6,6 +7,7 @@ import { Checklist } from 'src/app/shared/interfaces/checklist';
   selector: 'app-checklist-header',
   template: `
     <header>
+      <a data-testid="back-button" routerLink="/home">Back</a>
       <h1 data-testid="checklist-title">
         {{ checklist.title }}
       </h1>
@@ -23,6 +25,7 @@ import { Checklist } from 'src/app/shared/interfaces/checklist';
       </button>
     </header>
   `,
+  imports: [RouterModule],
 })
 export class ChecklistHeaderComponent {
   @Input({ required: true }) checklist!: Checklist;

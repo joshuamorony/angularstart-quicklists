@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ChecklistHeaderComponent } from './checklist-header.component';
 import { By } from '@angular/platform-browser';
 import { subscribeSpyTo } from '@hirez_io/observer-spy';
+import { RouterTestingModule } from '@angular/router/testing';
 
 describe('ChecklistHeaderComponent', () => {
   let component: ChecklistHeaderComponent;
@@ -9,7 +10,7 @@ describe('ChecklistHeaderComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [ChecklistHeaderComponent],
+      imports: [ChecklistHeaderComponent, RouterTestingModule],
     })
       .overrideComponent(ChecklistHeaderComponent, {
         remove: { imports: [] },

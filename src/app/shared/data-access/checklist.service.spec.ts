@@ -3,6 +3,7 @@ import { ChecklistService } from './checklist.service';
 import { Subject } from 'rxjs';
 import { StorageService } from './storage.service';
 import { subscribeSpyTo } from '@hirez_io/observer-spy';
+import { Component, Injector, runInInjectionContext } from '@angular/core';
 
 describe('ChecklistService', () => {
   let service: ChecklistService;
@@ -119,16 +120,60 @@ describe('ChecklistService', () => {
 
   describe('effect: checklists()', () => {
     it('should call saveChecklists method with checklists when checklists() changes', () => {
+      const { flushEffects } = setUp();
       loadChecklistsSubject.next([]);
       service.add$.next({ title: 'test' });
+      flushEffects();
       expect(storageService.saveChecklists).toHaveBeenCalledWith(
         service.checklists()
       );
     });
 
     it('should NOT call saveChecklists if the loaded flag is false', () => {
+      const { flushEffects } = setUp();
       service.add$.next({ title: 'test' });
+      flushEffects();
       expect(storageService.saveChecklists).not.toHaveBeenCalledWith();
     });
   });
+
+  function setUp() {
+    /*
+     * https://github.com/jscutlery/devkit/blob/43924070eb8433f56ff9a2e65a24bf48b4a5122e/packages/rx-computed/src/lib/rx-computed.spec.ts#L133
+     */
+    const { flushEffects } = setUpSignalTesting();
+
+    return {
+      flushEffects,
+    };
+  }
 });
+
+function setUpWithoutInjectionContext() {
+  const { flushEffects } = setUpSignalTesting();
+
+  return {
+    flushEffects,
+  };
+}
+
+function setUpSignalTesting() {
+  const injector = TestBed.inject(Injector);
+  const fixture = TestBed.createComponent(NoopComponent);
+
+  /* Inspiration: https://github.com/angular/angular/blob/06b498f67f2ad16bb465ef378bdb16da84e41a1c/packages/core/rxjs-interop/test/to_observable_spec.ts#LL30C25-L30C25 */
+  return {
+    flushEffects() {
+      fixture.detectChanges();
+    },
+    runInTestingInjectionContext<T>(fn: () => T): T {
+      return runInInjectionContext(injector, fn);
+    },
+  };
+}
+
+@Component({
+  standalone: true,
+  template: '',
+})
+class NoopComponent {}

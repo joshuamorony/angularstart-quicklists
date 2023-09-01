@@ -60,4 +60,46 @@ describe('StorageService', () => {
       );
     });
   });
+
+  describe('loadChecklistItems()', () => {
+    it('should return an observable of whatever data is stored on the "checklistsItems" key', () => {
+      const testData = [{}, {}];
+      const getItem = jest
+        .spyOn(Storage.prototype, 'getItem')
+        .mockReturnValue(JSON.stringify(testData));
+
+      const observerSpy = subscribeSpyTo(service.loadChecklistItems());
+
+      expect(observerSpy.getLastValue()).toEqual(testData);
+      expect(getItem).toHaveBeenCalledWith('checklistItems');
+      expect(getItem).toHaveBeenCalledTimes(1);
+    });
+
+    it('should return an empty array if value is null in storage', () => {
+      const getItem = jest
+        .spyOn(Storage.prototype, 'getItem')
+        .mockReturnValue(null);
+
+      const observerSpy = subscribeSpyTo(service.loadChecklistItems());
+
+      expect(observerSpy.getLastValue()).toEqual([]);
+      expect(getItem).toHaveBeenCalledWith('checklistItems');
+      expect(getItem).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('saveChecklistItems()', () => {
+    it('should call setItem of local storage on checklistItems key with supplied data', () => {
+      const setItem = jest.spyOn(Storage.prototype, 'setItem');
+
+      const testChecklistItems = [{}, {}] as any;
+
+      service.saveChecklists(testChecklistItems);
+
+      expect(setItem).toHaveBeenCalledWith(
+        'checklistItems',
+        JSON.stringify(testChecklistItems)
+      );
+    });
+  });
 });

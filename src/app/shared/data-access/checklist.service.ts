@@ -5,9 +5,9 @@ import {
   AddChecklist,
   Checklist,
   EditChecklist,
-  RemoveChecklist,
 } from '../interfaces/checklist';
 import { ChecklistItemService } from 'src/app/checklist/data-access/checklist-item.service';
+import { StorageService } from './storage.service';
 
 export interface ChecklistsState {
   checklists: Checklist[];
@@ -18,6 +18,7 @@ export interface ChecklistsState {
 })
 export class ChecklistService {
   private checklistItemService = inject(ChecklistItemService);
+  private storageService = inject(StorageService);
 
   // state
   private state = signal<ChecklistsState>({
@@ -28,12 +29,22 @@ export class ChecklistService {
   checklists = computed(() => this.state().checklists);
 
   // sources
-  checklistsLoaded$ = new Subject();
+  private checklistsLoaded$ = this.storageService.loadChecklists();
   add$ = new Subject<AddChecklist>();
   edit$ = new Subject<EditChecklist>();
   remove$ = this.checklistItemService.checklistRemoved$;
 
   constructor() {
+    // reducers
+    this.checklistsLoaded$.pipe(takeUntilDestroyed()).subscribe({
+      next: (checklists) =>
+        this.state.update((state) => ({
+          ...state,
+          checklists,
+        })),
+      error: (err) => this.state.update((state) => ({ ...state, error: err })),
+    });
+
     this.add$.pipe(takeUntilDestroyed()).subscribe((checklist) =>
       this.state.update((state) => ({
         ...state,

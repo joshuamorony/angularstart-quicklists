@@ -42,7 +42,6 @@ export class ChecklistService {
           ...state,
           checklists,
         })),
-      error: (err) => this.state.update((state) => ({ ...state, error: err })),
     });
 
     this.add$.pipe(takeUntilDestroyed()).subscribe((checklist) =>

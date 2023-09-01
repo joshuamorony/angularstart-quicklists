@@ -28,6 +28,7 @@ export class ChecklistService {
   checklists = computed(() => this.state().checklists);
 
   // sources
+  checklistsLoaded$ = new Subject();
   add$ = new Subject<AddChecklist>();
   edit$ = new Subject<EditChecklist>();
   remove$ = this.checklistItemService.checklistRemoved$;

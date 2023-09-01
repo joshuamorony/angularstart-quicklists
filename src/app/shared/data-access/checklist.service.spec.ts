@@ -1,12 +1,26 @@
 import { TestBed } from '@angular/core/testing';
 import { ChecklistService } from './checklist.service';
+import { Subject } from 'rxjs';
+import { StorageService } from './storage.service';
+import { subscribeSpyTo } from '@hirez_io/observer-spy';
 
 describe('ChecklistService', () => {
   let service: ChecklistService;
+  let loadChecklistsSubject: Subject<void>;
 
   beforeEach(() => {
+    loadChecklistsSubject = new Subject();
+
     TestBed.configureTestingModule({
-      providers: [ChecklistService],
+      providers: [
+        ChecklistService,
+        {
+          provide: StorageService,
+          useValue: {
+            loadChecklists: jest.fn().mockReturnValue(loadChecklistsSubject),
+          },
+        },
+      ],
     });
 
     service = TestBed.inject(ChecklistService);
@@ -76,6 +90,14 @@ describe('ChecklistService', () => {
       const prevLength = service.checklists().length;
       service.remove$.next(testChecklist.id);
       expect(service.checklists().length).toEqual(prevLength - 1);
+    });
+  });
+
+  describe('source: checklistsLoaded$', () => {
+    it('should update checklists state when loadChecklists() emits', () => {
+      const testData = [{}, {}] as any;
+      loadChecklistsSubject.next(testData);
+      expect(service.checklists()).toEqual(testData);
     });
   });
 });

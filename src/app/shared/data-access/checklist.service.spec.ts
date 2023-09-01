@@ -105,5 +105,12 @@ describe('ChecklistService', () => {
       loadChecklistsSubject.next([]);
       expect(service.loaded()).toEqual(true);
     });
+
+    it('should set the error state if load fails', () => {
+      expect(service.error()).toEqual(null);
+      const testError = 'err';
+      loadChecklistsSubject.error(testError);
+      expect(service.error()).toEqual(testError);
+    });
   });
 });

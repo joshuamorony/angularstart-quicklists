@@ -6,6 +6,7 @@ import { subscribeSpyTo } from '@hirez_io/observer-spy';
 
 describe('ChecklistService', () => {
   let service: ChecklistService;
+  let storageService: StorageService;
   let loadChecklistsSubject: Subject<any>;
 
   beforeEach(() => {
@@ -18,12 +19,14 @@ describe('ChecklistService', () => {
           provide: StorageService,
           useValue: {
             loadChecklists: jest.fn().mockReturnValue(loadChecklistsSubject),
+            saveChecklists: jest.fn(),
           },
         },
       ],
     });
 
     service = TestBed.inject(ChecklistService);
+    storageService = TestBed.inject(StorageService);
   });
 
   it('should create', () => {
@@ -111,6 +114,21 @@ describe('ChecklistService', () => {
       const testError = 'err';
       loadChecklistsSubject.error(testError);
       expect(service.error()).toEqual(testError);
+    });
+  });
+
+  describe('effect: checklists()', () => {
+    it('should call saveChecklists method with checklists when checklists() changes', () => {
+      loadChecklistsSubject.next([]);
+      service.add$.next({ title: 'test' });
+      expect(storageService.saveChecklists).toHaveBeenCalledWith(
+        service.checklists()
+      );
+    });
+
+    it('should NOT call saveChecklists if the loaded flag is false', () => {
+      service.add$.next({ title: 'test' });
+      expect(storageService.saveChecklists).not.toHaveBeenCalledWith();
     });
   });
 });

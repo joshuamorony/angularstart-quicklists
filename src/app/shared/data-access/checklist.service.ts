@@ -44,6 +44,7 @@ export class ChecklistService {
         this.state.update((state) => ({
           ...state,
           checklists,
+          loaded: true,
         })),
     });
 

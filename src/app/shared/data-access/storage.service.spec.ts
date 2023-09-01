@@ -94,7 +94,7 @@ describe('StorageService', () => {
 
       const testChecklistItems = [{}, {}] as any;
 
-      service.saveChecklists(testChecklistItems);
+      service.saveChecklistItems(testChecklistItems);
 
       expect(setItem).toHaveBeenCalledWith(
         'checklistItems',

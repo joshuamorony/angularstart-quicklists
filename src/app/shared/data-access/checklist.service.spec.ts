@@ -2,8 +2,8 @@ import { TestBed } from '@angular/core/testing';
 import { ChecklistService } from './checklist.service';
 import { Subject } from 'rxjs';
 import { StorageService } from './storage.service';
-import { subscribeSpyTo } from '@hirez_io/observer-spy';
 import { Component, Injector, runInInjectionContext } from '@angular/core';
+import { ChecklistItemService } from 'src/app/checklist/data-access/checklist-item.service';
 
 describe('ChecklistService', () => {
   let service: ChecklistService;
@@ -21,6 +21,12 @@ describe('ChecklistService', () => {
           useValue: {
             loadChecklists: jest.fn().mockReturnValue(loadChecklistsSubject),
             saveChecklists: jest.fn(),
+          },
+        },
+        {
+          provide: ChecklistItemService,
+          useValue: {
+            checklistRemoved$: new Subject(),
           },
         },
       ],

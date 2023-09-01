@@ -26,6 +26,7 @@ export class ChecklistItemService {
 
   // selectors
   checklistItems = computed(() => this.state().checklistItems);
+  loaded = computed(() => this.state().loaded);
 
   // sources
   add$ = new Subject<AddChecklistItem>();

@@ -1,12 +1,29 @@
 import { TestBed } from '@angular/core/testing';
 import { ChecklistItemService } from './checklist-item.service';
+import { Component, Injector, runInInjectionContext } from '@angular/core';
+import { StorageService } from 'src/app/shared/data-access/storage.service';
+import { Subject } from 'rxjs';
 
 describe('ChecklistItemService', () => {
   let service: ChecklistItemService;
+  let loadChecklistItemsSubject: Subject<any>;
 
   beforeEach(() => {
+    loadChecklistItemsSubject = new Subject();
+
     TestBed.configureTestingModule({
-      providers: [ChecklistItemService],
+      providers: [
+        ChecklistItemService,
+        {
+          provide: StorageService,
+          useValue: {
+            loadChecklistItems: jest
+              .fn()
+              .mockReturnValue(loadChecklistItemsSubject),
+            saveChecklistItems: jest.fn(),
+          },
+        },
+      ],
     });
 
     service = TestBed.inject(ChecklistItemService);
@@ -185,4 +202,58 @@ describe('ChecklistItemService', () => {
       ).toBeTruthy();
     });
   });
+
+  describe('source: checklistItemsLoaded$', () => {
+    it('should update checklistItems state when loadChecklists() emits', () => {
+      const testData = [{}, {}];
+      loadChecklistItemsSubject.next(testData);
+      expect(service.checklistItems()).toEqual(testData);
+    });
+
+    it('should set loaded flag to true if loaded successfully', () => {
+      expect(service.loaded()).toEqual(false);
+      loadChecklistItemsSubject.next([]);
+      expect(service.loaded()).toEqual(true);
+    });
+  });
+
+  function setUp() {
+    /*
+     * https://github.com/jscutlery/devkit/blob/43924070eb8433f56ff9a2e65a24bf48b4a5122e/packages/rx-computed/src/lib/rx-computed.spec.ts#L133
+     */
+    const { flushEffects } = setUpSignalTesting();
+
+    return {
+      flushEffects,
+    };
+  }
 });
+
+function setUpWithoutInjectionContext() {
+  const { flushEffects } = setUpSignalTesting();
+
+  return {
+    flushEffects,
+  };
+}
+
+function setUpSignalTesting() {
+  const injector = TestBed.inject(Injector);
+  const fixture = TestBed.createComponent(NoopComponent);
+
+  /* Inspiration: https://github.com/angular/angular/blob/06b498f67f2ad16bb465ef378bdb16da84e41a1c/packages/core/rxjs-interop/test/to_observable_spec.ts#LL30C25-L30C25 */
+  return {
+    flushEffects() {
+      fixture.detectChanges();
+    },
+    runInTestingInjectionContext<T>(fn: () => T): T {
+      return runInInjectionContext(injector, fn);
+    },
+  };
+}
+
+@Component({
+  standalone: true,
+  template: '',
+})
+class NoopComponent {}

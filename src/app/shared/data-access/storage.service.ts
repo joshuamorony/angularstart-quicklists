@@ -27,12 +27,15 @@ export class StorageService {
   }
 
   loadChecklistItems() {
-    return of();
+    const checklists = this.storage.getItem('checklistItems');
+    return of(checklists ? JSON.parse(checklists) : []);
   }
 
   saveChecklists(checklists: Checklist[]) {
     this.storage.setItem('checklists', JSON.stringify(checklists));
   }
 
-  saveChecklistItems(checklistItems: ChecklistItem[]) {}
+  saveChecklistItems(checklistItems: ChecklistItem[]) {
+    this.storage.setItem('checklistItems', JSON.stringify(checklistItems));
+  }
 }

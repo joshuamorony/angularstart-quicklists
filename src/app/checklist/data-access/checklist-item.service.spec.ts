@@ -6,6 +6,7 @@ import { Subject } from 'rxjs';
 
 describe('ChecklistItemService', () => {
   let service: ChecklistItemService;
+  let storageService: StorageService;
   let loadChecklistItemsSubject: Subject<any>;
 
   beforeEach(() => {
@@ -27,6 +28,7 @@ describe('ChecklistItemService', () => {
     });
 
     service = TestBed.inject(ChecklistItemService);
+    storageService = TestBed.inject(StorageService);
   });
 
   it('should create', () => {
@@ -214,6 +216,25 @@ describe('ChecklistItemService', () => {
       expect(service.loaded()).toEqual(false);
       loadChecklistItemsSubject.next([]);
       expect(service.loaded()).toEqual(true);
+    });
+  });
+
+  describe('effect: checklistItems()', () => {
+    it('should call saveChecklistItems method with checklistItems when checklistItems() changes', () => {
+      const { flushEffects } = setUp();
+      loadChecklistItemsSubject.next([]);
+      service.add$.next({ item: { title: 'test' }, checklistId: '1' });
+      flushEffects();
+      expect(storageService.saveChecklistItems).toHaveBeenCalledWith(
+        service.checklistItems()
+      );
+    });
+
+    it('should NOT call saveChecklistItems if the loaded flag is false', () => {
+      const { flushEffects } = setUp();
+      service.add$.next({ item: { title: 'test' }, checklistId: '1' });
+      flushEffects();
+      expect(storageService.saveChecklistItems).not.toHaveBeenCalledWith();
     });
   });
 

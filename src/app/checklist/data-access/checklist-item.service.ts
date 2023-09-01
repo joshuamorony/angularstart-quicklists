@@ -1,4 +1,4 @@
-import { Injectable, computed, inject, signal } from '@angular/core';
+import { Injectable, computed, effect, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject } from 'rxjs';
 import { StorageService } from 'src/app/shared/data-access/storage.service';
@@ -110,5 +110,12 @@ export class ChecklistItemService {
         ),
       }))
     );
+
+    // effects
+    effect(() => {
+      if (this.loaded()) {
+        this.storageService.saveChecklistItems(this.checklistItems());
+      }
+    });
   }
 }

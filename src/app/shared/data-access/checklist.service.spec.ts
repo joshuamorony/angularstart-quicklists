@@ -6,7 +6,7 @@ import { subscribeSpyTo } from '@hirez_io/observer-spy';
 
 describe('ChecklistService', () => {
   let service: ChecklistService;
-  let loadChecklistsSubject: Subject<void>;
+  let loadChecklistsSubject: Subject<any>;
 
   beforeEach(() => {
     loadChecklistsSubject = new Subject();
@@ -95,9 +95,15 @@ describe('ChecklistService', () => {
 
   describe('source: checklistsLoaded$', () => {
     it('should update checklists state when loadChecklists() emits', () => {
-      const testData = [{}, {}] as any;
+      const testData = [{}, {}];
       loadChecklistsSubject.next(testData);
       expect(service.checklists()).toEqual(testData);
+    });
+
+    it('should set loaded flag to true if loaded successfully', () => {
+      expect(service.loaded()).toEqual(false);
+      loadChecklistsSubject.next([]);
+      expect(service.loaded()).toEqual(true);
     });
   });
 });

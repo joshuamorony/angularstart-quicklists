@@ -11,6 +11,7 @@ import { StorageService } from './storage.service';
 
 export interface ChecklistsState {
   checklists: Checklist[];
+  loaded: boolean;
 }
 
 @Injectable({
@@ -23,10 +24,12 @@ export class ChecklistService {
   // state
   private state = signal<ChecklistsState>({
     checklists: [],
+    loaded: false,
   });
 
   // selectors
   checklists = computed(() => this.state().checklists);
+  loaded = computed(() => this.state().loaded);
 
   // sources
   private checklistsLoaded$ = this.storageService.loadChecklists();

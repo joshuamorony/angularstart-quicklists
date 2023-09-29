@@ -10,10 +10,12 @@ import { FormGroup, ReactiveFormsModule } from '@angular/forms';
       close
     </button>
     <form [formGroup]="formGroup" (ngSubmit)="save.emit(); close.emit()">
-      <div *ngFor="let control of formGroup.controls | keyvalue">
+      @for (control of formGroup.controls | keyvalue; track control.key){
+      <div>
         <label [for]="control.key">{{ control.key }}</label>
         <input [id]="control.key" type="text" [formControlName]="control.key" />
       </div>
+      }
       <button type="submit" data-testid="save-checklist-button">Save</button>
     </form>
   `,

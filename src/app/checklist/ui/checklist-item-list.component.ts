@@ -7,11 +7,11 @@ import { ChecklistItem } from 'src/app/shared/interfaces/checklist-item';
   selector: 'app-checklist-item-list',
   template: `
     <ul>
-      <li
-        *ngFor="let item of checklistItems; trackBy: trackByFn"
-        data-testid="checklist-item"
-      >
-        <span *ngIf="item.checked" data-testid="checked-indicator">[DONE]</span>
+      @for (item of checklistItems; track item.id){
+      <li data-testid="checklist-item">
+        @if (item.checked){
+        <span data-testid="checked-indicator">[DONE]</span>
+        }
         {{ item.title }}
         <button
           (click)="toggle.emit(item.id)"
@@ -32,14 +32,15 @@ import { ChecklistItem } from 'src/app/shared/interfaces/checklist-item';
           Delete
         </button>
       </li>
+      } @empty {
+      <div>
+        <h2>Add an item</h2>
+        <p data-testid="no-checklist-items-message">
+          Click the add button to add your first item to this quicklist
+        </p>
+      </div>
+      }
     </ul>
-
-    <div *ngIf="!checklistItems.length">
-      <h2>Add an item</h2>
-      <p data-testid="no-checklist-items-message">
-        Click the add button to add your first item to this quicklist
-      </p>
-    </div>
   `,
   imports: [CommonModule],
 })
@@ -48,8 +49,4 @@ export class ChecklistItemListComponent {
   @Output() delete = new EventEmitter<string>();
   @Output() edit = new EventEmitter<ChecklistItem>();
   @Output() toggle = new EventEmitter<string>();
-
-  trackByFn(index: number, item: ChecklistItem) {
-    return item.id;
-  }
 }

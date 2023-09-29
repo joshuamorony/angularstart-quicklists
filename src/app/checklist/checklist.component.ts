@@ -15,12 +15,13 @@ import { ChecklistItemService } from './data-access/checklist-item.service';
   standalone: true,
   selector: 'app-checklist',
   template: `
+    @if (checklist(); as checklist){
     <app-checklist-header
-      *ngIf="checklist() as checklist"
-      [checklist]="checklist"
+      [checklist]="checklist!"
       (addItem)="checklistItemBeingEdited.set({})"
       (resetChecklist)="checklistItemService.reset$.next($event)"
     />
+    }
 
     <app-checklist-item-list
       [checklistItems]="items()"

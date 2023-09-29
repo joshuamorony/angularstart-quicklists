@@ -8,10 +8,8 @@ import { Checklist } from 'src/app/shared/interfaces/checklist';
   selector: 'app-checklist-list',
   template: `
     <ul>
-      <li
-        *ngFor="let checklist of checklists; trackBy: trackByFn"
-        data-testid="checklist-item"
-      >
+      @for (checklist of checklists; track checklist.id){
+      <li data-testid="checklist-item">
         <a
           routerLink="/checklist/{{ checklist.id }}"
           data-testid="checklist-link"
@@ -28,11 +26,12 @@ import { Checklist } from 'src/app/shared/interfaces/checklist';
           Delete
         </button>
       </li>
+      } @empty {
+      <p data-testid="no-checklists-message">
+        Click the add button to create your first checklist!
+      </p>
+      }
     </ul>
-
-    <p *ngIf="!checklists.length" data-testid="no-checklists-message">
-      Click the add button to create your first checklist!
-    </p>
   `,
   imports: [CommonModule, RouterModule],
 })
@@ -40,8 +39,4 @@ export class ChecklistListComponent {
   @Input({ required: true }) checklists!: Checklist[];
   @Output() delete = new EventEmitter<string>();
   @Output() edit = new EventEmitter<Checklist>();
-
-  trackByFn(index: number, checklist: Checklist) {
-    return checklist.id;
-  }
 }

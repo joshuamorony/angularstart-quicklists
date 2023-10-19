@@ -1,1 +1,45 @@
 /* You can add global styles to this file, and also import other style files */
+:root {
+  --color-primary: #32db64;
+  --color-secondary: #2dd36f;
+  --color-dark: #1c1d3b;
+  --color-light: #ffffff;
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  height: 100%;
+  background: var(--color-dark);
+  font-family: "Roboto", sans-serif;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2rem;
+  background: var(--color-light);
+}
+
+section {
+  height: 100%;
+  padding: 2rem;
+  background: var(--color-primary);
+}
+
+button {
+  height: 30px;
+}
+
+.dialog-container {
+  position: absolute !important;
+  background: var(--color-dark);
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+}

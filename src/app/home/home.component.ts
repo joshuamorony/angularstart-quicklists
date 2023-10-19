@@ -10,21 +10,29 @@ import { ChecklistService } from '../shared/data-access/checklist.service';
   selector: 'app-home',
   standalone: true,
   template: `
-    <button
-      (click)="checklistBeingEdited.set({})"
-      data-testid="create-checklist-button"
-    >
-      Add
-    </button>
-    <app-checklist-list
-      [checklists]="checklistService.checklists()"
-      (delete)="checklistService.remove$.next($event)"
-      (edit)="checklistBeingEdited.set($event)"
-    />
+    <header>
+      <h1>Quicklists</h1>
+      <button (click)="checklistBeingEdited.set({})">Add Checklist</button>
+    </header>
+
+    <section>
+      <h2>Your checklists</h2>
+
+      <app-checklist-list
+        [checklists]="checklistService.checklists()"
+        (delete)="checklistService.remove$.next($event)"
+        (edit)="checklistBeingEdited.set($event)"
+      />
+    </section>
 
     <app-modal [isOpen]="!!checklistBeingEdited()">
       <ng-template>
         <app-form-modal
+          [title]="
+            checklistBeingEdited()?.title
+              ? checklistBeingEdited()!.title!
+              : 'Add Checklist'
+          "
           [formGroup]="checklistForm"
           (save)="
             checklistBeingEdited()?.id

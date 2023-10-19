@@ -16,7 +16,7 @@ export class ModalComponent {
   dialog = inject(Dialog);
   @Input() set isOpen(value: boolean) {
     if (value) {
-      this.dialog.open(this.template);
+      this.dialog.open(this.template, { panelClass: 'dialog-container' });
     } else {
       this.dialog.closeAll();
     }

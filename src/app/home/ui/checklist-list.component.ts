@@ -16,15 +16,17 @@ import { Checklist } from 'src/app/shared/interfaces/checklist';
         >
           {{ checklist.title }}
         </a>
-        <button (click)="edit.emit(checklist)" data-testid="edit-checklist">
-          Edit
-        </button>
-        <button
-          (click)="delete.emit(checklist.id)"
-          data-testid="delete-checklist"
-        >
-          Delete
-        </button>
+        <div>
+          <button (click)="edit.emit(checklist)" data-testid="edit-checklist">
+            Edit
+          </button>
+          <button
+            (click)="delete.emit(checklist.id)"
+            data-testid="delete-checklist"
+          >
+            Delete
+          </button>
+        </div>
       </li>
       } @empty {
       <p data-testid="no-checklists-message">
@@ -33,6 +35,27 @@ import { Checklist } from 'src/app/shared/interfaces/checklist';
       }
     </ul>
   `,
+  styles: [
+    `
+      ul {
+        padding: 0;
+        margin: 0;
+      }
+      li {
+        font-size: 1.5em;
+        display: flex;
+        justify-content: space-between;
+        background: var(--color-light);
+        list-style-type: none;
+        margin-bottom: 1rem;
+        padding: 1rem;
+
+        button {
+          margin-left: 1rem;
+        }
+      }
+    `,
+  ],
   imports: [CommonModule, RouterModule],
 })
 export class ChecklistListComponent {

@@ -17,7 +17,7 @@ import { ChecklistItemService } from './data-access/checklist-item.service';
   template: `
     @if (checklist(); as checklist){
     <app-checklist-header
-      [checklist]="checklist!"
+      [checklist]="checklist"
       (addItem)="checklistItemBeingEdited.set({})"
       (resetChecklist)="checklistItemService.reset$.next($event)"
     />

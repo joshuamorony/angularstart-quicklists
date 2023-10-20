@@ -57,10 +57,10 @@ export class ChecklistItemService {
         checklistItems: [
           ...state.checklistItems,
           {
+            ...checklistItem.item,
             id: Date.now().toString(),
             checklistId: checklistItem.checklistId,
             checked: false,
-            ...checklistItem.item,
           },
         ],
       }))

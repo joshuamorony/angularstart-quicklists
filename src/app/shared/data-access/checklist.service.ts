@@ -1,5 +1,4 @@
-import { Injectable, computed, effect, inject, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Injectable, computed, effect, inject } from '@angular/core';
 import { EMPTY, Subject, catchError, merge } from 'rxjs';
 import { map } from 'rxjs/operators';
 import {
@@ -9,7 +8,7 @@ import {
 } from '../interfaces/checklist';
 import { ChecklistItemService } from 'src/app/checklist/data-access/checklist-item.service';
 import { StorageService } from './storage.service';
-import { connect } from 'ngxtension/connect';
+import { connectSignal } from '../utils/connectSignal';
 
 export interface ChecklistsState {
   checklists: Checklist[];
@@ -24,17 +23,11 @@ export class ChecklistService {
   private checklistItemService = inject(ChecklistItemService);
   private storageService = inject(StorageService);
 
-  // state
-  private state = signal<ChecklistsState>({
+  private initialState: ChecklistsState = {
     checklists: [],
     loaded: false,
     error: null,
-  });
-
-  // selectors
-  checklists = computed(() => this.state().checklists);
-  loaded = computed(() => this.state().loaded);
-  error = computed(() => this.state().error);
+  };
 
   // sources
   private checklistsLoaded$ = this.storageService.loadChecklists().pipe(
@@ -43,35 +36,52 @@ export class ChecklistService {
       return EMPTY;
     })
   );
+
   private error$ = new Subject<string>();
   add$ = new Subject<AddChecklist>();
   edit$ = new Subject<EditChecklist>();
   remove$ = this.checklistItemService.checklistRemoved$;
 
-  constructor() {
-    const nextState$ = merge(
-      this.checklistsLoaded$.pipe(
-        map((checklists) => ({ checklists, loaded: true }))
-      ),
-      this.error$.pipe(map((error) => ({ error })))
-    );
+  nextState$ = merge(
+    this.checklistsLoaded$.pipe(
+      map((checklists) => ({ checklists, loaded: true }))
+    ),
+    this.error$.pipe(map((error) => ({ error })))
+  );
 
-    connect(this.state)
-      .with(nextState$)
-      .with(this.add$, (state, checklist) => ({
+  state = connectSignal(
+    this.initialState,
+    this.nextState$,
+    [
+      this.add$,
+      (state, checklist) => ({
         checklists: [...state.checklists, this.addIdToChecklist(checklist)],
-      }))
-      .with(this.remove$, (state, id) => ({
+      }),
+    ],
+    [
+      this.remove$,
+      (state, id) => ({
         checklists: state.checklists.filter((checklist) => checklist.id !== id),
-      }))
-      .with(this.edit$, (state, update) => ({
+      }),
+    ],
+    [
+      this.edit$,
+      (state, update) => ({
         checklists: state.checklists.map((checklist) =>
           checklist.id === update.id
             ? { ...checklist, title: update.data.title }
             : checklist
         ),
-      }));
+      }),
+    ]
+  );
 
+  // selectors
+  checklists = computed(() => this.state().checklists);
+  loaded = computed(() => this.state().loaded);
+  error = computed(() => this.state().error);
+
+  constructor() {
     // effects
     effect(() => {
       if (this.loaded()) {

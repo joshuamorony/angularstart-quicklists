@@ -8,7 +8,7 @@ import {
 } from '../interfaces/checklist';
 import { ChecklistItemService } from 'src/app/checklist/data-access/checklist-item.service';
 import { StorageService } from './storage.service';
-import { connectSignal, withReducer } from '../utils/connectSignal';
+import { signalSlice } from '../utils/signalSlice';
 
 export interface ChecklistsState {
   checklists: Checklist[];
@@ -32,40 +32,42 @@ export class ChecklistService {
   // sources
   private checklistsLoaded$ = this.storageService.loadChecklists().pipe(
     catchError((err) => {
-      this.error$.next(err);
+      //this.error$.next(err);
       return EMPTY;
     })
   );
 
-  private error$ = new Subject<string>();
-  add$ = new Subject<AddChecklist>();
-  edit$ = new Subject<EditChecklist>();
-  remove$ = this.checklistItemService.checklistRemoved$;
+  // private error$ = new Subject<string>();
+  // add$ = new Subject<AddChecklist>();
+  // edit$ = new Subject<EditChecklist>();
+  // remove$ = this.checklistItemService.checklistRemoved$;
 
   nextState$ = merge(
     this.checklistsLoaded$.pipe(
       map((checklists) => ({ checklists, loaded: true }))
-    ),
-    this.error$.pipe(map((error) => ({ error })))
+    )
+    //this.error$.pipe(map((error) => ({ error })))
   );
 
-  state = connectSignal(
-    this.initialState,
-    this.nextState$,
-    withReducer(this.add$, (state, checklist) => ({
-      checklists: [...state.checklists, this.addIdToChecklist(checklist)],
-    })),
-    withReducer(this.remove$, (state, id) => ({
-      checklists: state.checklists.filter((checklist) => checklist.id !== id),
-    })),
-    withReducer(this.edit$, (state, update) => ({
-      checklists: state.checklists.map((checklist) =>
-        checklist.id === update.id
-          ? { ...checklist, title: update.data.title }
-          : checklist
-      ),
-    }))
-  );
+  state = signalSlice({
+    initialState: this.initialState,
+    sources: [this.nextState$],
+    reducers: {
+      add: (state, checklist) => ({
+        checklists: [...state.checklists, this.addIdToChecklist(checklist)],
+      }),
+      edit: (state, update) => ({
+        checklists: state.checklists.map((checklist) =>
+          checklist.id === update.id
+            ? { ...checklist, title: update.data.title }
+            : checklist
+        ),
+      }),
+      remove: (state, id) => ({
+        checklists: state.checklists.filter((checklist) => checklist.id !== id),
+      }),
+    },
+  });
 
   // selectors
   checklists = computed(() => this.state().checklists);

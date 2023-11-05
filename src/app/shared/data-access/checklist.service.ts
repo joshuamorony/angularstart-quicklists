@@ -8,7 +8,7 @@ import {
 } from '../interfaces/checklist';
 import { ChecklistItemService } from 'src/app/checklist/data-access/checklist-item.service';
 import { StorageService } from './storage.service';
-import { connectSignal } from '../utils/connectSignal';
+import { connectSignal, withReducer } from '../utils/connectSignal';
 
 export interface ChecklistsState {
   checklists: Checklist[];
@@ -52,28 +52,19 @@ export class ChecklistService {
   state = connectSignal(
     this.initialState,
     this.nextState$,
-    [
-      this.add$,
-      (state, checklist) => ({
-        checklists: [...state.checklists, this.addIdToChecklist(checklist)],
-      }),
-    ],
-    [
-      this.remove$,
-      (state, id) => ({
-        checklists: state.checklists.filter((checklist) => checklist.id !== id),
-      }),
-    ],
-    [
-      this.edit$,
-      (state, update) => ({
-        checklists: state.checklists.map((checklist) =>
-          checklist.id === update.id
-            ? { ...checklist, title: update.data.title }
-            : checklist
-        ),
-      }),
-    ]
+    withReducer(this.add$, (state, checklist) => ({
+      checklists: [...state.checklists, this.addIdToChecklist(checklist)],
+    })),
+    withReducer(this.remove$, (state, id) => ({
+      checklists: state.checklists.filter((checklist) => checklist.id !== id),
+    })),
+    withReducer(this.edit$, (state, update) => ({
+      checklists: state.checklists.map((checklist) =>
+        checklist.id === update.id
+          ? { ...checklist, title: update.data.title }
+          : checklist
+      ),
+    }))
   );
 
   // selectors

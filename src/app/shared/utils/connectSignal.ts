@@ -27,3 +27,10 @@ export function connectSignal<TSignalValue>(
 
   return valueSignal.asReadonly();
 }
+
+export function withReducer<TObservableValue, TSignalValue>(
+  source: Observable<TObservableValue>,
+  reducer: Reducer<TSignalValue, TObservableValue>
+): [Observable<TObservableValue>, Reducer<TSignalValue, TObservableValue>] {
+  return [source, reducer];
+}

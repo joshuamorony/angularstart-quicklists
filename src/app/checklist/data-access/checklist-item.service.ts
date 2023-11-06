@@ -90,18 +90,14 @@ export class ChecklistItemService {
     },
   });
 
-  // selectors
-  checklistItems = computed(() => this.state().checklistItems);
-  loaded = computed(() => this.state().loaded);
-
   constructor() {
     // shared source
     this.state.checklistRemoved(this.checklistService.state.remove$);
 
     // effects
     effect(() => {
-      if (this.loaded()) {
-        this.storageService.saveChecklistItems(this.checklistItems());
+      if (this.state.loaded()) {
+        this.storageService.saveChecklistItems(this.state.checklistItems());
       }
     });
   }

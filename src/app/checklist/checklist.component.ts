@@ -70,13 +70,13 @@ export default class ChecklistComponent {
   params = toSignal(this.route.paramMap);
 
   items = computed(() =>
-    this.checklistItemService
+    this.checklistItemService.state
       .checklistItems()
       .filter((item) => item.checklistId === this.params()?.get('id'))
   );
 
   checklist = computed(() =>
-    this.checklistService
+    this.checklistService.state
       .checklists()
       .find((checklist) => checklist.id === this.params()?.get('id'))
   );

@@ -65,16 +65,11 @@ export class ChecklistService {
     },
   });
 
-  // selectors
-  checklists = computed(() => this.state().checklists);
-  loaded = computed(() => this.state().loaded);
-  error = computed(() => this.state().error);
-
   constructor() {
     // effects
     effect(() => {
-      if (this.loaded()) {
-        this.storageService.saveChecklists(this.checklists());
+      if (this.state.loaded()) {
+        this.storageService.saveChecklists(this.state.checklists());
       }
     });
   }
@@ -91,9 +86,9 @@ export class ChecklistService {
     let slug = title.toLowerCase().replace(/\s+/g, '-');
 
     // Check if the slug already exists
-    const matchingSlugs = this.checklists().find(
-      (checklist) => checklist.id === slug
-    );
+    const matchingSlugs = this.state
+      .checklists()
+      .find((checklist) => checklist.id === slug);
 
     // If the title is already being used, add a string to make the slug unique
     if (matchingSlugs) {

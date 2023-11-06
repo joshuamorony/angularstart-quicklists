@@ -1,4 +1,4 @@
-import { DestroyRef, Signal, inject, signal } from '@angular/core';
+import { DestroyRef, Signal, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { connect } from 'ngxtension/connect';
 import { Observable, Subject, isObservable } from 'rxjs';
@@ -11,6 +11,10 @@ type Reducer<TValue, TNext> = (
 
 type NamedReducers<TSignalValue> = {
   [actionName: string]: Reducer<TSignalValue, any>;
+};
+
+type Selectors<TSignalValue> = {
+  [K in keyof TSignalValue]: Signal<TSignalValue[K]>;
 };
 
 type ActionMethods<
@@ -38,10 +42,11 @@ type ActionStreams<
     : never;
 };
 
-type SignalWithActions<
+type SignalWithSelectorsAndActions<
   TSignalValue,
   TReducers extends NamedReducers<TSignalValue>
 > = Signal<TSignalValue> &
+  Selectors<TSignalValue> &
   ActionMethods<TSignalValue, TReducers> &
   ActionStreams<TSignalValue, TReducers>;
 
@@ -52,7 +57,7 @@ export function signalSlice<
   initialState: TSignalValue;
   sources?: Array<Observable<PartialOrValue<TSignalValue>>>;
   reducers?: TReducers;
-}): SignalWithActions<TSignalValue, TReducers> {
+}): SignalWithSelectorsAndActions<TSignalValue, TReducers> {
   const destroyRef = inject(DestroyRef);
   const { initialState, sources = [], reducers = {} } = config;
 
@@ -85,9 +90,18 @@ export function signalSlice<
     subs.push(subject);
   }
 
+  for (const key in initialState) {
+    Object.defineProperties(readonlyState, {
+      [key]: { value: computed(() => readonlyState()[key]) },
+    });
+  }
+
   destroyRef.onDestroy(() => {
     subs.forEach((sub) => sub.complete());
   });
 
-  return readonlyState as SignalWithActions<TSignalValue, TReducers>;
+  return readonlyState as SignalWithSelectorsAndActions<
+    TSignalValue,
+    TReducers
+  >;
 }

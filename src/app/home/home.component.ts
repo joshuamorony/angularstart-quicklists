@@ -19,7 +19,7 @@ import { ChecklistService } from '../shared/data-access/checklist.service';
       <h2>Your checklists</h2>
 
       <app-checklist-list
-        [checklists]="checklistService.checklists()"
+        [checklists]="checklistService.state.checklists()"
         (delete)="checklistService.state.remove($event)"
         (edit)="checklistBeingEdited.set($event)"
       />

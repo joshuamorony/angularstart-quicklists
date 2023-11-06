@@ -5,6 +5,7 @@ import {
   AddChecklist,
   Checklist,
   EditChecklist,
+  RemoveChecklist,
 } from '../interfaces/checklist';
 import { ChecklistItemService } from 'src/app/checklist/data-access/checklist-item.service';
 import { StorageService } from './storage.service';
@@ -20,7 +21,6 @@ export interface ChecklistsState {
   providedIn: 'root',
 })
 export class ChecklistService {
-  private checklistItemService = inject(ChecklistItemService);
   private storageService = inject(StorageService);
 
   private initialState: ChecklistsState = {
@@ -30,40 +30,36 @@ export class ChecklistService {
   };
 
   // sources
+  private error$ = new Subject<string>();
   private checklistsLoaded$ = this.storageService.loadChecklists().pipe(
     catchError((err) => {
-      //this.error$.next(err);
+      this.error$.next(err);
       return EMPTY;
     })
   );
 
-  // private error$ = new Subject<string>();
-  // add$ = new Subject<AddChecklist>();
-  // edit$ = new Subject<EditChecklist>();
-  // remove$ = this.checklistItemService.checklistRemoved$;
-
-  nextState$ = merge(
+  sources$ = merge(
     this.checklistsLoaded$.pipe(
       map((checklists) => ({ checklists, loaded: true }))
-    )
-    //this.error$.pipe(map((error) => ({ error })))
+    ),
+    this.error$.pipe(map((error) => ({ error })))
   );
 
   state = signalSlice({
     initialState: this.initialState,
-    sources: [this.nextState$],
+    sources: [this.sources$],
     reducers: {
-      add: (state, checklist) => ({
+      add: (state, checklist: AddChecklist) => ({
         checklists: [...state.checklists, this.addIdToChecklist(checklist)],
       }),
-      edit: (state, update) => ({
+      edit: (state, update: EditChecklist) => ({
         checklists: state.checklists.map((checklist) =>
           checklist.id === update.id
             ? { ...checklist, title: update.data.title }
             : checklist
         ),
       }),
-      remove: (state, id) => ({
+      remove: (state, id: RemoveChecklist) => ({
         checklists: state.checklists.filter((checklist) => checklist.id !== id),
       }),
     },

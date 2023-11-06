@@ -19,15 +19,15 @@ import { ChecklistItemService } from './data-access/checklist-item.service';
     <app-checklist-header
       [checklist]="checklist"
       (addItem)="checklistItemBeingEdited.set({})"
-      (resetChecklist)="checklistItemService.reset$.next($event)"
+      (resetChecklist)="checklistItemService.state.reset($event)"
     />
     }
 
     <app-checklist-item-list
       [checklistItems]="items()"
-      (delete)="checklistItemService.remove$.next($event)"
+      (delete)="checklistItemService.state.remove($event)"
       (edit)="checklistItemBeingEdited.set($event)"
-      (toggle)="checklistItemService.toggle$.next($event)"
+      (toggle)="checklistItemService.state.toggle($event)"
     />
 
     <app-modal [isOpen]="!!checklistItemBeingEdited()">
@@ -37,11 +37,11 @@ import { ChecklistItemService } from './data-access/checklist-item.service';
           [formGroup]="checklistItemForm"
           (save)="
             checklistItemBeingEdited()?.id
-              ? checklistItemService.edit$.next({
+              ? checklistItemService.state.edit({
                 id: checklistItemBeingEdited()!.id!,
                 data: checklistItemForm.getRawValue(),
               })
-              : checklistItemService.add$.next({
+              : checklistItemService.state.add({
                 item: checklistItemForm.getRawValue(),
                 checklistId: checklist()?.id!,
               })

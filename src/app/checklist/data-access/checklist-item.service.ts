@@ -1,7 +1,7 @@
-import { Injectable, computed, effect, inject, signal } from '@angular/core';
-import { connect } from 'ngxtension/connect';
-import { Subject, merge } from 'rxjs';
+import { Injectable, computed, effect, inject } from '@angular/core';
+import { merge } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { ChecklistService } from 'src/app/shared/data-access/checklist.service';
 import { StorageService } from 'src/app/shared/data-access/storage.service';
 import { RemoveChecklist } from 'src/app/shared/interfaces/checklist';
 import {
@@ -10,6 +10,7 @@ import {
   EditChecklistItem,
   RemoveChecklistItem,
 } from 'src/app/shared/interfaces/checklist-item';
+import { signalSlice } from 'src/app/shared/utils/signalSlice';
 
 export interface ChecklistItemsState {
   checklistItems: ChecklistItem[];
@@ -21,39 +22,30 @@ export interface ChecklistItemsState {
 })
 export class ChecklistItemService {
   private storageService = inject(StorageService);
+  private checklistService = inject(ChecklistService);
 
-  // state
-  private state = signal<ChecklistItemsState>({
+  initialState: ChecklistItemsState = {
     checklistItems: [],
     loaded: false,
-  });
-
-  // selectors
-  checklistItems = computed(() => this.state().checklistItems);
-  loaded = computed(() => this.state().loaded);
+  };
 
   // sources
   private checklistItemsLoaded$ = this.storageService.loadChecklistItems();
-  add$ = new Subject<AddChecklistItem>();
-  remove$ = new Subject<RemoveChecklistItem>();
-  edit$ = new Subject<EditChecklistItem>();
-  toggle$ = new Subject<RemoveChecklistItem>();
-  reset$ = new Subject<RemoveChecklistItem>();
-  checklistRemoved$ = new Subject<RemoveChecklist>();
 
-  constructor() {
-    const nextState$ = merge(
-      this.checklistItemsLoaded$.pipe(
-        map((checklistItems) => ({
-          checklistItems,
-          loaded: true,
-        }))
-      )
-    );
+  sources$ = merge(
+    this.checklistItemsLoaded$.pipe(
+      map((checklistItems) => ({
+        checklistItems,
+        loaded: true,
+      }))
+    )
+  );
 
-    connect(this.state)
-      .with(nextState$)
-      .with(this.add$, (state, checklistItem) => ({
+  state = signalSlice({
+    initialState: this.initialState,
+    sources: [this.sources$],
+    reducers: {
+      add: (state, checklistItem: AddChecklistItem) => ({
         ...state,
         checklistItems: [
           ...state.checklistItems,
@@ -64,37 +56,47 @@ export class ChecklistItemService {
             checked: false,
           },
         ],
-      }))
-      .with(this.edit$, (state, update) => ({
+      }),
+      remove: (state, id: RemoveChecklistItem) => ({
+        ...state,
+        checklistItems: state.checklistItems.filter((item) => item.id !== id),
+      }),
+      edit: (state, update: EditChecklistItem) => ({
         ...state,
         checklistItems: state.checklistItems.map((item) =>
           item.id === update.id ? { ...item, title: update.data.title } : item
         ),
-      }))
-      .with(this.remove$, (state, id) => ({
-        ...state,
-        checklistItems: state.checklistItems.filter((item) => item.id !== id),
-      }))
-      .with(this.toggle$, (state, checklistItemId) => ({
+      }),
+      toggle: (state, checklistItemId: RemoveChecklistItem) => ({
         ...state,
         checklistItems: state.checklistItems.map((item) =>
           item.id === checklistItemId
             ? { ...item, checked: !item.checked }
             : item
         ),
-      }))
-      .with(this.reset$, (state, checklistId) => ({
+      }),
+      reset: (state, checklistId: RemoveChecklistItem) => ({
         ...state,
         checklistItems: state.checklistItems.map((item) =>
           item.checklistId === checklistId ? { ...item, checked: false } : item
         ),
-      }))
-      .with(this.checklistRemoved$, (state, checklistId) => ({
+      }),
+      checklistRemoved: (state, checklistId: RemoveChecklist) => ({
         ...state,
         checklistItems: state.checklistItems.filter(
           (item) => item.checklistId !== checklistId
         ),
-      }));
+      }),
+    },
+  });
+
+  // selectors
+  checklistItems = computed(() => this.state().checklistItems);
+  loaded = computed(() => this.state().loaded);
+
+  constructor() {
+    // shared source
+    this.state.checklistRemoved(this.checklistService.state.remove$);
 
     // effects
     effect(() => {

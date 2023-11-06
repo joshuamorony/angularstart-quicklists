@@ -36,11 +36,11 @@ import { ChecklistService } from '../shared/data-access/checklist.service';
           [formGroup]="checklistForm"
           (save)="
             checklistBeingEdited()?.id
-              ? checklistService.edit$.next({
+              ? checklistService.state.edit({
                   id: checklistBeingEdited()!.id!,
                   data: checklistForm.getRawValue()
                 })
-              : checklistService.add$.next(checklistForm.getRawValue())
+              : checklistService.state.add(checklistForm.getRawValue())
           "
           (close)="checklistBeingEdited.set(null)"
         />

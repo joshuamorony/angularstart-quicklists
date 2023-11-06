@@ -1,6 +1,7 @@
-import { Signal, WritableSignal, signal } from '@angular/core';
+import { DestroyRef, Signal, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { connect } from 'ngxtension/connect';
-import { Observable, Subject } from 'rxjs';
+import { Observable, Subject, isObservable } from 'rxjs';
 
 type PartialOrValue<TValue> = TValue extends object ? Partial<TValue> : TValue;
 type Reducer<TValue, TNext> = (
@@ -16,52 +17,77 @@ type ActionMethods<
   TSignalValue,
   TReducers extends NamedReducers<TSignalValue>
 > = {
-  [K in keyof TReducers]: (nextValue: Parameters<TReducers[K]>[1]) => void;
+  [K in keyof TReducers]: TReducers[K] extends Reducer<TSignalValue, unknown>
+    ? () => void
+    : TReducers[K] extends Reducer<TSignalValue, infer TValue>
+    ? (value: TValue | Observable<TValue>) => void
+    : never;
 };
 
-type SignalWithActions<TSignalValue, TActions> = TSignalValue & {
-  [K in keyof TActions]: TActions[K];
+type ActionStreams<
+  TSignalValue,
+  TReducers extends NamedReducers<TSignalValue>
+> = {
+  [K in keyof TReducers & string as `${K}$`]: TReducers[K] extends Reducer<
+    TSignalValue,
+    unknown
+  >
+    ? Observable<void>
+    : TReducers[K] extends Reducer<TSignalValue, infer TValue>
+    ? Observable<TValue>
+    : never;
 };
 
-export function signalSlice<TSignalValue>(config: {
+type SignalWithActions<
+  TSignalValue,
+  TReducers extends NamedReducers<TSignalValue>
+> = Signal<TSignalValue> &
+  ActionMethods<TSignalValue, TReducers> &
+  ActionStreams<TSignalValue, TReducers>;
+
+export function signalSlice<
+  TSignalValue,
+  TReducers extends NamedReducers<TSignalValue>
+>(config: {
   initialState: TSignalValue;
   sources?: Array<Observable<PartialOrValue<TSignalValue>>>;
-  reducers?: NamedReducers<TSignalValue>;
-}): SignalWithActions<
-  Signal<TSignalValue>,
-  ActionMethods<TSignalValue, NamedReducers<TSignalValue>>
-> {
-  const { initialState, sources, reducers = {} } = config;
+  reducers?: TReducers;
+}): SignalWithActions<TSignalValue, TReducers> {
+  const destroyRef = inject(DestroyRef);
+  const { initialState, sources = [], reducers = {} } = config;
 
-  let state = signal(initialState);
+  const state = signal(initialState);
 
-  if (sources) {
-    for (const source of sources) {
-      connect(state, source);
-    }
+  for (const source of sources) {
+    connect(state, source);
   }
 
-  let actions = {} as ActionMethods<TSignalValue, NamedReducers<TSignalValue>>;
+  const readonlyState = state.asReadonly();
+  const subs: Subject<unknown>[] = [];
 
-  for (const key in reducers) {
-    if (reducers.hasOwnProperty(key)) {
-      const action$ = createAction(reducers[key], state);
-      actions[key as keyof NamedReducers<TSignalValue>] = (nextValue) =>
-        action$.next(nextValue);
-    }
+  for (const [key, reducer] of Object.entries(reducers as TReducers)) {
+    const subject = new Subject();
+    connect(state, subject, reducer);
+    Object.defineProperties(readonlyState, {
+      [key]: {
+        value: (nextValue: unknown) => {
+          if (isObservable(nextValue)) {
+            nextValue.pipe(takeUntilDestroyed(destroyRef)).subscribe(subject);
+          } else {
+            subject.next(nextValue);
+          }
+        },
+      },
+      [`${key}$`]: {
+        value: subject.asObservable(),
+      },
+    });
+    subs.push(subject);
   }
 
-  return { ...state.asReadonly(), ...actions } as SignalWithActions<
-    Signal<TSignalValue>,
-    ActionMethods<TSignalValue, NamedReducers<TSignalValue>>
-  >;
-}
+  destroyRef.onDestroy(() => {
+    subs.forEach((sub) => sub.complete());
+  });
 
-function createAction<TSignalValue, TNext>(
-  reducer: Reducer<TSignalValue, TNext>,
-  state: WritableSignal<TSignalValue>
-): Subject<TNext> {
-  const action$ = new Subject<TNext>();
-  connect(state, action$, reducer);
-  return action$;
+  return readonlyState as SignalWithActions<TSignalValue, TReducers>;
 }

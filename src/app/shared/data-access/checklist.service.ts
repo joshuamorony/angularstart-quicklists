@@ -63,10 +63,21 @@ export class ChecklistService {
         checklists: state.checklists.filter((checklist) => checklist.id !== id),
       }),
     },
+    selectors: (state) => ({
+      loadedAndError: () => {
+        return state().loaded && state().error;
+      },
+      whatever: () => 'hi',
+    }),
   });
 
   constructor() {
     // effects
+    effect(() => {
+      console.log(this.state.loadedAndError());
+      console.log(this.state.whatever());
+    });
+
     effect(() => {
       if (this.state.loaded()) {
         this.storageService.saveChecklists(this.state.checklists());

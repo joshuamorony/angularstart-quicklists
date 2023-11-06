@@ -13,8 +13,16 @@ type NamedReducers<TSignalValue> = {
   [actionName: string]: Reducer<TSignalValue, any>;
 };
 
+type NamedSelectors = {
+  [selectorName: string]: () => any;
+};
+
 type Selectors<TSignalValue> = {
   [K in keyof TSignalValue]: Signal<TSignalValue[K]>;
+};
+
+type ExtraSelectors<TSelectors extends NamedSelectors> = {
+  [K in keyof TSelectors]: () => any;
 };
 
 type ActionMethods<
@@ -44,22 +52,26 @@ type ActionStreams<
 
 type SignalWithSelectorsAndActions<
   TSignalValue,
-  TReducers extends NamedReducers<TSignalValue>
+  TReducers extends NamedReducers<TSignalValue>,
+  TSelectors extends NamedSelectors
 > = Signal<TSignalValue> &
   Selectors<TSignalValue> &
+  ExtraSelectors<TSelectors> &
   ActionMethods<TSignalValue, TReducers> &
   ActionStreams<TSignalValue, TReducers>;
 
 export function signalSlice<
   TSignalValue,
-  TReducers extends NamedReducers<TSignalValue>
+  TReducers extends NamedReducers<TSignalValue>,
+  TSelectors extends NamedSelectors
 >(config: {
   initialState: TSignalValue;
   sources?: Array<Observable<PartialOrValue<TSignalValue>>>;
   reducers?: TReducers;
-}): SignalWithSelectorsAndActions<TSignalValue, TReducers> {
+  selectors?: (state: Signal<TSignalValue>) => TSelectors;
+}): SignalWithSelectorsAndActions<TSignalValue, TReducers, TSelectors> {
   const destroyRef = inject(DestroyRef);
-  const { initialState, sources = [], reducers = {} } = config;
+  const { initialState, sources = [], reducers = {}, selectors } = config;
 
   const state = signal(initialState);
 
@@ -96,12 +108,23 @@ export function signalSlice<
     });
   }
 
+  if (selectors) {
+    for (const [key, selector] of Object.entries(
+      selectors(readonlyState) as TSelectors
+    )) {
+      Object.defineProperties(readonlyState, {
+        [key]: { value: computed(() => selector()) },
+      });
+    }
+  }
+
   destroyRef.onDestroy(() => {
     subs.forEach((sub) => sub.complete());
   });
 
   return readonlyState as SignalWithSelectorsAndActions<
     TSignalValue,
-    TReducers
+    TReducers,
+    TSelectors
   >;
 }

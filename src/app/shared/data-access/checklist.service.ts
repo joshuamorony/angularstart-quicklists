@@ -1,5 +1,5 @@
-import { Injectable, computed, effect, inject } from '@angular/core';
-import { EMPTY, Subject, catchError, merge } from 'rxjs';
+import { Injectable, effect, inject } from '@angular/core';
+import { EMPTY, Observable, Subject, catchError, merge } from 'rxjs';
 import { map } from 'rxjs/operators';
 import {
   AddChecklist,
@@ -7,9 +7,8 @@ import {
   EditChecklist,
   RemoveChecklist,
 } from '../interfaces/checklist';
-import { ChecklistItemService } from 'src/app/checklist/data-access/checklist-item.service';
 import { StorageService } from './storage.service';
-import { signalSlice } from '../utils/signalSlice';
+import { signalSlice } from 'ngxtension/signal-slice';
 
 export interface ChecklistsState {
   checklists: Checklist[];
@@ -48,36 +47,38 @@ export class ChecklistService {
   state = signalSlice({
     initialState: this.initialState,
     sources: [this.sources$],
-    reducers: {
-      add: (state, checklist: AddChecklist) => ({
-        checklists: [...state.checklists, this.addIdToChecklist(checklist)],
-      }),
-      edit: (state, update: EditChecklist) => ({
-        checklists: state.checklists.map((checklist) =>
-          checklist.id === update.id
-            ? { ...checklist, title: update.data.title }
-            : checklist
+    actionSources: {
+      add: (state, action$: Observable<AddChecklist>) =>
+        action$.pipe(
+          map((checklist) => ({
+            checklists: [
+              ...state().checklists,
+              this.addIdToChecklist(checklist),
+            ],
+          }))
         ),
-      }),
-      remove: (state, id: RemoveChecklist) => ({
-        checklists: state.checklists.filter((checklist) => checklist.id !== id),
-      }),
+      edit: (state, action$: Observable<EditChecklist>) =>
+        action$.pipe(
+          map((update) => ({
+            checklists: state().checklists.map((checklist) =>
+              checklist.id === update.id
+                ? { ...checklist, title: update.data.title }
+                : checklist
+            ),
+          }))
+        ),
+      remove: (state, action$: Observable<RemoveChecklist>) =>
+        action$.pipe(
+          map((id) => ({
+            checklists: state().checklists.filter(
+              (checklist) => checklist.id !== id
+            ),
+          }))
+        ),
     },
-    selectors: (state) => ({
-      loadedAndError: () => {
-        return state().loaded && state().error;
-      },
-      whatever: () => 'hi',
-    }),
   });
 
   constructor() {
-    // effects
-    effect(() => {
-      console.log(this.state.loadedAndError());
-      console.log(this.state.whatever());
-    });
-
     effect(() => {
       if (this.state.loaded()) {
         this.storageService.saveChecklists(this.state.checklists());

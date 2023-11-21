@@ -1,5 +1,5 @@
-import { Injectable, computed, effect, inject } from '@angular/core';
-import { merge } from 'rxjs';
+import { Injectable, effect, inject } from '@angular/core';
+import { Observable, merge } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ChecklistService } from 'src/app/shared/data-access/checklist.service';
 import { StorageService } from 'src/app/shared/data-access/storage.service';
@@ -10,7 +10,7 @@ import {
   EditChecklistItem,
   RemoveChecklistItem,
 } from 'src/app/shared/interfaces/checklist-item';
-import { signalSlice } from 'src/app/shared/utils/signalSlice';
+import { signalSlice } from 'ngxtension/signal-slice';
 
 export interface ChecklistItemsState {
   checklistItems: ChecklistItem[];
@@ -44,49 +44,67 @@ export class ChecklistItemService {
   state = signalSlice({
     initialState: this.initialState,
     sources: [this.sources$],
-    reducers: {
-      add: (state, checklistItem: AddChecklistItem) => ({
-        ...state,
-        checklistItems: [
-          ...state.checklistItems,
-          {
-            ...checklistItem.item,
-            id: Date.now().toString(),
-            checklistId: checklistItem.checklistId,
-            checked: false,
-          },
-        ],
-      }),
-      remove: (state, id: RemoveChecklistItem) => ({
-        ...state,
-        checklistItems: state.checklistItems.filter((item) => item.id !== id),
-      }),
-      edit: (state, update: EditChecklistItem) => ({
-        ...state,
-        checklistItems: state.checklistItems.map((item) =>
-          item.id === update.id ? { ...item, title: update.data.title } : item
+    actionSources: {
+      add: (state, action$: Observable<AddChecklistItem>) =>
+        action$.pipe(
+          map((checklistItem) => ({
+            checklistItems: [
+              ...state().checklistItems,
+              {
+                ...checklistItem.item,
+                id: Date.now().toString(),
+                checklistId: checklistItem.checklistId,
+                checked: false,
+              },
+            ],
+          }))
         ),
-      }),
-      toggle: (state, checklistItemId: RemoveChecklistItem) => ({
-        ...state,
-        checklistItems: state.checklistItems.map((item) =>
-          item.id === checklistItemId
-            ? { ...item, checked: !item.checked }
-            : item
+      remove: (state, action$: Observable<RemoveChecklistItem>) =>
+        action$.pipe(
+          map((id) => ({
+            checklistItems: state().checklistItems.filter(
+              (item) => item.id !== id
+            ),
+          }))
         ),
-      }),
-      reset: (state, checklistId: RemoveChecklistItem) => ({
-        ...state,
-        checklistItems: state.checklistItems.map((item) =>
-          item.checklistId === checklistId ? { ...item, checked: false } : item
+      edit: (state, action$: Observable<EditChecklistItem>) =>
+        action$.pipe(
+          map((update) => ({
+            checklistItems: state().checklistItems.map((item) =>
+              item.id === update.id
+                ? { ...item, title: update.data.title }
+                : item
+            ),
+          }))
         ),
-      }),
-      checklistRemoved: (state, checklistId: RemoveChecklist) => ({
-        ...state,
-        checklistItems: state.checklistItems.filter(
-          (item) => item.checklistId !== checklistId
+      toggle: (state, action$: Observable<RemoveChecklistItem>) =>
+        action$.pipe(
+          map((checklistItemId) => ({
+            checklistItems: state().checklistItems.map((item) =>
+              item.id === checklistItemId
+                ? { ...item, checked: !item.checked }
+                : item
+            ),
+          }))
         ),
-      }),
+      reset: (state, action$: Observable<RemoveChecklistItem>) =>
+        action$.pipe(
+          map((checklistId) => ({
+            checklistItems: state().checklistItems.map((item) =>
+              item.checklistId === checklistId
+                ? { ...item, checked: false }
+                : item
+            ),
+          }))
+        ),
+      checklistRemoved: (state, action$: Observable<RemoveChecklist>) =>
+        action$.pipe(
+          map((checklistId) => ({
+            checklistItems: state().checklistItems.filter(
+              (item) => item.checklistId !== checklistId
+            ),
+          }))
+        ),
     },
   });
 

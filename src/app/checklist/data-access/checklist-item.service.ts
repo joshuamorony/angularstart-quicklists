@@ -1,7 +1,14 @@
-import { Injectable, computed, effect, inject, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Injectable, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Subject } from 'rxjs';
-import { StorageService } from 'src/app/shared/data-access/storage.service';
+import { EMPTY, Subject, concatMap, merge } from 'rxjs';
+import {
+  catchError,
+  exhaustMap,
+  mergeMap,
+  startWith,
+  switchMap,
+} from 'rxjs/operators';
 import { RemoveChecklist } from 'src/app/shared/interfaces/checklist';
 import {
   AddChecklistItem,
@@ -9,113 +16,105 @@ import {
   EditChecklistItem,
   RemoveChecklistItem,
 } from 'src/app/shared/interfaces/checklist-item';
+import { environment } from 'src/environments/environment';
 
 export interface ChecklistItemsState {
   checklistItems: ChecklistItem[];
   loaded: boolean;
+  error: string | null;
 }
 
 @Injectable({
   providedIn: 'root',
 })
 export class ChecklistItemService {
-  private storageService = inject(StorageService);
+  private http = inject(HttpClient);
 
   // state
   private state = signal<ChecklistItemsState>({
     checklistItems: [],
     loaded: false,
+    error: null,
   });
 
   // selectors
   checklistItems = computed(() => this.state().checklistItems);
   loaded = computed(() => this.state().loaded);
+  error = computed(() => this.state().error);
 
   // sources
-  private checklistItemsLoaded$ = this.storageService.loadChecklistItems();
   add$ = new Subject<AddChecklistItem>();
   remove$ = new Subject<RemoveChecklistItem>();
   edit$ = new Subject<EditChecklistItem>();
-  toggle$ = new Subject<RemoveChecklistItem>();
+  toggle$ = new Subject<EditChecklistItem>();
   reset$ = new Subject<RemoveChecklist>();
   checklistRemoved$ = new Subject<RemoveChecklist>();
 
+  checklistItemAdded$ = this.add$.pipe(
+    concatMap((addChecklistItem) =>
+      this.http
+        .post(
+          `${environment.API_URL}/checklist-items/${addChecklistItem.checklistId}`,
+          JSON.stringify(addChecklistItem.item),
+        )
+        .pipe(catchError((err) => this.handleError(err))),
+    ),
+  );
+
+  checklistItemRemoved$ = this.remove$.pipe(
+    mergeMap((id) =>
+      this.http
+        .delete(`${environment.API_URL}/checklist-items/${id}`)
+        .pipe(catchError((err) => this.handleError(err))),
+    ),
+  );
+
+  checklistItemEdited$ = merge(this.edit$, this.toggle$).pipe(
+    mergeMap((update) =>
+      this.http
+        .put(
+          `${environment.API_URL}/checklist-items/${update.id}`,
+          JSON.stringify(update.data),
+        )
+        .pipe(catchError((err) => this.handleError(err))),
+    ),
+  );
+
+  checklistReset$ = this.reset$.pipe(
+    exhaustMap((id) =>
+      this.http
+        .post(`${environment.API_URL}/checklist/${id}/reset`, {})
+        .pipe(catchError((err) => this.handleError(err))),
+    ),
+  );
+
   constructor() {
-    this.checklistItemsLoaded$
-      .pipe(takeUntilDestroyed())
+    merge(
+      this.checklistItemAdded$,
+      this.checklistItemEdited$,
+      this.checklistItemRemoved$,
+      this.checklistReset$,
+    )
+      .pipe(
+        startWith(null),
+        switchMap(() =>
+          this.http
+            .get<ChecklistItem[]>(`${environment.API_URL}/checklist-items`)
+            .pipe(catchError((err) => this.handleError(err))),
+        ),
+        takeUntilDestroyed(),
+      )
       .subscribe((checklistItems) =>
         this.state.update((state) => ({
           ...state,
           checklistItems,
           loaded: true,
-        }))
+        })),
       );
+  }
 
-    this.add$.pipe(takeUntilDestroyed()).subscribe((checklistItem) =>
-      this.state.update((state) => ({
-        ...state,
-        checklistItems: [
-          ...state.checklistItems,
-          {
-            ...checklistItem.item,
-            id: Date.now().toString(),
-            checklistId: checklistItem.checklistId,
-            checked: false,
-          },
-        ],
-      }))
-    );
-
-    this.edit$.pipe(takeUntilDestroyed()).subscribe((update) =>
-      this.state.update((state) => ({
-        ...state,
-        checklistItems: state.checklistItems.map((item) =>
-          item.id === update.id ? { ...item, title: update.data.title } : item
-        ),
-      }))
-    );
-
-    this.remove$.pipe(takeUntilDestroyed()).subscribe((id) =>
-      this.state.update((state) => ({
-        ...state,
-        checklistItems: state.checklistItems.filter((item) => item.id !== id),
-      }))
-    );
-
-    this.toggle$.pipe(takeUntilDestroyed()).subscribe((checklistItemId) =>
-      this.state.update((state) => ({
-        ...state,
-        checklistItems: state.checklistItems.map((item) =>
-          item.id === checklistItemId
-            ? { ...item, checked: !item.checked }
-            : item
-        ),
-      }))
-    );
-
-    this.reset$.pipe(takeUntilDestroyed()).subscribe((checklistId) =>
-      this.state.update((state) => ({
-        ...state,
-        checklistItems: state.checklistItems.map((item) =>
-          item.checklistId === checklistId ? { ...item, checked: false } : item
-        ),
-      }))
-    );
-
-    this.checklistRemoved$.pipe(takeUntilDestroyed()).subscribe((checklistId) =>
-      this.state.update((state) => ({
-        ...state,
-        checklistItems: state.checklistItems.filter(
-          (item) => item.checklistId !== checklistId
-        ),
-      }))
-    );
-
-    // effects
-    effect(() => {
-      if (this.loaded()) {
-        this.storageService.saveChecklistItems(this.checklistItems());
-      }
-    });
+  private handleError(err: any) {
+    this.state.update((state) => ({ ...state, error: err }));
+    return EMPTY;
   }
 }

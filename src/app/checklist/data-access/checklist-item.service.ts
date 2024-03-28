@@ -72,7 +72,7 @@ export class ChecklistItemService {
   checklistItemEdited$ = merge(this.edit$, this.toggle$).pipe(
     mergeMap((update) =>
       this.http
-        .put(
+        .patch(
           `${environment.API_URL}/checklist-items/${update.id}`,
           JSON.stringify(update.data),
         )

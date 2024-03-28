@@ -66,7 +66,7 @@ export class ChecklistService {
   checklistEdited$ = this.edit$.pipe(
     mergeMap((update) =>
       this.http
-        .put(
+        .patch(
           `${environment.API_URL}/checklists/${update.id}`,
           JSON.stringify(update.data),
         )
@@ -75,6 +75,11 @@ export class ChecklistService {
   );
 
   constructor() {
+    this.http.get();
+    this.http.post();
+    this.http.patch();
+    this.http.delete();
+
     // reducers
     merge(this.checklistAdded$, this.checklistEdited$, this.checklistRemoved$)
       .pipe(

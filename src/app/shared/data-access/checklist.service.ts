@@ -75,11 +75,6 @@ export class ChecklistService {
   );
 
   constructor() {
-    this.http.get();
-    this.http.post();
-    this.http.patch();
-    this.http.delete();
-
     // reducers
     merge(this.checklistAdded$, this.checklistEdited$, this.checklistRemoved$)
       .pipe(

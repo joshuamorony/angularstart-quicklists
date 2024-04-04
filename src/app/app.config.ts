@@ -3,12 +3,13 @@ import { provideRouter } from '@angular/router';
 import { DialogModule } from '@angular/cdk/dialog';
 
 import { routes } from './app.routes';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { credentialsInterceptor } from './shared/utils/credentials-interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
-    provideHttpClient(),
+    provideHttpClient(withInterceptors([credentialsInterceptor])),
     importProvidersFrom(DialogModule),
   ],
 };

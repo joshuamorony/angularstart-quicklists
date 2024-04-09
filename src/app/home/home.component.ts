@@ -5,6 +5,8 @@ import { ModalComponent } from '../shared/ui/modal.component';
 import { FormModalComponent } from '../shared/ui/form-modal.component';
 import { FormBuilder } from '@angular/forms';
 import { ChecklistService } from '../shared/data-access/checklist.service';
+import { AuthService } from '../shared/data-access/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-home',
@@ -12,7 +14,10 @@ import { ChecklistService } from '../shared/data-access/checklist.service';
   template: `
     <header>
       <h1>Quicklists</h1>
-      <button (click)="checklistBeingEdited.set({})">Add Checklist</button>
+      <div>
+        <button (click)="checklistBeingEdited.set({})">Add Checklist</button>
+        <button (click)="authService.logout$.next()">Logout</button>
+      </div>
     </header>
 
     <section>
@@ -48,10 +53,17 @@ import { ChecklistService } from '../shared/data-access/checklist.service';
     </app-modal>
   `,
   imports: [ChecklistListComponent, ModalComponent, FormModalComponent],
+  styles: `
+    header button {
+      margin-left: 1em;
+    }
+  `,
 })
 export default class HomeComponent {
   formBuilder = inject(FormBuilder);
   checklistService = inject(ChecklistService);
+  authService = inject(AuthService);
+  router = inject(Router);
 
   checklistBeingEdited = signal<Partial<Checklist> | null>(null);
 

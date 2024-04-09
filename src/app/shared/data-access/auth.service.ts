@@ -1,11 +1,17 @@
-import { Injectable, computed, inject, signal } from '@angular/core';
+import { Injectable, computed, effect, inject, signal } from '@angular/core';
 import { Subject, of, Observable, EMPTY, merge } from 'rxjs';
 import { startWith, switchMap, map, catchError } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
+import { Router } from '@angular/router';
 
-type Status = 'initial' | 'authenticating' | 'authenticated' | 'fail';
+type Status =
+  | 'initial'
+  | 'authenticating'
+  | 'authenticated'
+  | 'fail'
+  | 'unauthenticated';
 
 interface AuthState {
   status: Status;
@@ -16,6 +22,7 @@ interface AuthState {
 })
 export class AuthService {
   private http = inject(HttpClient);
+  private router = inject(Router);
 
   public login$ = new Subject<string>();
   public logout$ = new Subject<void>();
@@ -35,7 +42,7 @@ export class AuthService {
   private logoutStatus$: Observable<Status> = this.logout$.pipe(
     switchMap(() =>
       this.http.post(`${environment.API_URL}/logout`, {}).pipe(
-        map(() => 'initial' as const),
+        map(() => 'unauthenticated' as const),
         catchError(() => EMPTY),
       ),
     ),
@@ -55,5 +62,17 @@ export class AuthService {
       .subscribe((status) =>
         this.state.update((state) => ({ ...state, status })),
       );
+
+    effect(() => {
+      const status = this.status();
+
+      if (status === 'initial' || status === 'unauthenticated') {
+        this.router.navigate(['login']);
+      }
+
+      if (status === 'authenticated') {
+        this.router.navigate(['home']);
+      }
+    });
   }
 }

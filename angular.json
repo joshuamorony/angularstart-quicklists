@@ -73,10 +73,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "angularstart-quicklists:build:production"
+              "buildTarget": "angularstart-quicklists:build:production"
             },
             "development": {
-              "browserTarget": "angularstart-quicklists:build:development"
+              "buildTarget": "angularstart-quicklists:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -84,7 +84,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "angularstart-quicklists:build"
+            "buildTarget": "angularstart-quicklists:build"
           }
         },
         "test": {

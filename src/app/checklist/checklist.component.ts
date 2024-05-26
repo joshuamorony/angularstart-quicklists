@@ -15,12 +15,12 @@ import { ChecklistItemService } from './data-access/checklist-item.service';
   standalone: true,
   selector: 'app-checklist',
   template: `
-    @if (checklist(); as checklist){
-    <app-checklist-header
-      [checklist]="checklist"
-      (addItem)="checklistItemBeingEdited.set({})"
-      (resetChecklist)="checklistItemService.reset$.next($event)"
-    />
+    @if (checklist(); as checklist) {
+      <app-checklist-header
+        [checklist]="checklist"
+        (addItem)="checklistItemBeingEdited.set({})"
+        (resetChecklist)="checklistItemService.reset$.next($event)"
+      />
     }
 
     <app-checklist-item-list
@@ -38,13 +38,13 @@ import { ChecklistItemService } from './data-access/checklist-item.service';
           (save)="
             checklistItemBeingEdited()?.id
               ? checklistItemService.edit$.next({
-                id: checklistItemBeingEdited()!.id!,
-                data: checklistItemForm.getRawValue(),
-              })
+                  id: checklistItemBeingEdited()!.id!,
+                  data: checklistItemForm.getRawValue()
+                })
               : checklistItemService.add$.next({
-                item: checklistItemForm.getRawValue(),
-                checklistId: checklist()?.id!,
-              })
+                  item: checklistItemForm.getRawValue(),
+                  checklistId: checklist()?.id!
+                })
           "
           (close)="checklistItemBeingEdited.set(null)"
         ></app-form-modal>
@@ -52,7 +52,6 @@ import { ChecklistItemService } from './data-access/checklist-item.service';
     </app-modal>
   `,
   imports: [
-    CommonModule,
     ChecklistHeaderComponent,
     ChecklistItemListComponent,
     ModalComponent,
@@ -72,13 +71,13 @@ export default class ChecklistComponent {
   items = computed(() =>
     this.checklistItemService
       .checklistItems()
-      .filter((item) => item.checklistId === this.params()?.get('id'))
+      .filter((item) => item.checklistId === this.params()?.get('id')),
   );
 
   checklist = computed(() =>
     this.checklistService
       .checklists()
-      .find((checklist) => checklist.id === this.params()?.get('id'))
+      .find((checklist) => checklist.id === this.params()?.get('id')),
   );
 
   checklistItemForm = this.formBuilder.nonNullable.group({

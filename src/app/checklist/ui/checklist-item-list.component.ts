@@ -1,5 +1,4 @@
-import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { ChecklistItem } from 'src/app/shared/interfaces/checklist-item';
 
 @Component({
@@ -8,42 +7,42 @@ import { ChecklistItem } from 'src/app/shared/interfaces/checklist-item';
   template: `
     <section>
       <ul>
-        @for (item of checklistItems; track item.id){
-        <li data-testid="checklist-item">
-          <div>
-            @if (item.checked){
-            <span data-testid="checked-indicator">✅</span>
-            }
-            {{ item.title }}
-          </div>
-          <div>
-            <button
-              (click)="toggle.emit(item.id)"
-              data-testid="toggle-checklist-item-button"
-            >
-              Toggle
-            </button>
-            <button
-              (click)="edit.emit(item)"
-              data-testid="edit-checklist-item-button"
-            >
-              Edit
-            </button>
-            <button
-              (click)="delete.emit(item.id)"
-              data-testid="delete-checklist-item-button"
-            >
-              Delete
-            </button>
-          </div>
-        </li>
+        @for (item of checklistItems(); track item.id) {
+          <li data-testid="checklist-item">
+            <div>
+              @if (item.checked) {
+                <span data-testid="checked-indicator">✅</span>
+              }
+              {{ item.title }}
+            </div>
+            <div>
+              <button
+                (click)="toggle.emit(item.id)"
+                data-testid="toggle-checklist-item-button"
+              >
+                Toggle
+              </button>
+              <button
+                (click)="edit.emit(item)"
+                data-testid="edit-checklist-item-button"
+              >
+                Edit
+              </button>
+              <button
+                (click)="delete.emit(item.id)"
+                data-testid="delete-checklist-item-button"
+              >
+                Delete
+              </button>
+            </div>
+          </li>
         } @empty {
-        <div>
-          <h2>Add an item</h2>
-          <p data-testid="no-checklist-items-message">
-            Click the add button to add your first item to this quicklist
-          </p>
-        </div>
+          <div>
+            <h2>Add an item</h2>
+            <p data-testid="no-checklist-items-message">
+              Click the add button to add your first item to this quicklist
+            </p>
+          </div>
         }
       </ul>
     </section>
@@ -69,11 +68,10 @@ import { ChecklistItem } from 'src/app/shared/interfaces/checklist-item';
       }
     `,
   ],
-  imports: [CommonModule],
 })
 export class ChecklistItemListComponent {
-  @Input({ required: true }) checklistItems!: ChecklistItem[];
-  @Output() delete = new EventEmitter<string>();
-  @Output() edit = new EventEmitter<ChecklistItem>();
-  @Output() toggle = new EventEmitter<string>();
+  checklistItems = input.required<ChecklistItem[]>();
+  delete = output<string>();
+  edit = output<ChecklistItem>();
+  toggle = output<string>();
 }

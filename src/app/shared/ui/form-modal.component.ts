@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, KeyValuePipe } from '@angular/common';
 import { Component, input, output } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 
@@ -53,7 +53,7 @@ import { FormGroup, ReactiveFormsModule } from '@angular/forms';
       }
     `,
   ],
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule, KeyValuePipe],
 })
 export class FormModalComponent {
   formGroup = input.required<FormGroup>();

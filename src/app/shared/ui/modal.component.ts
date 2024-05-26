@@ -1,10 +1,11 @@
 import { Dialog } from '@angular/cdk/dialog';
 import {
   Component,
-  ContentChild,
-  Input,
   TemplateRef,
+  contentChild,
+  effect,
   inject,
+  input,
 } from '@angular/core';
 
 @Component({
@@ -14,14 +15,18 @@ import {
 })
 export class ModalComponent {
   dialog = inject(Dialog);
+  isOpen = input.required<boolean>();
+  template = contentChild.required(TemplateRef);
 
-  @Input() set isOpen(value: boolean) {
-    if (value) {
-      this.dialog.open(this.template, { panelClass: 'dialog-container' });
-    } else {
-      this.dialog.closeAll();
-    }
+  constructor() {
+    effect(() => {
+      const isOpen = this.isOpen();
+
+      if (isOpen) {
+        this.dialog.open(this.template(), { panelClass: 'dialog-container' });
+      } else {
+        this.dialog.closeAll();
+      }
+    });
   }
-
-  @ContentChild(TemplateRef, { static: false }) template!: TemplateRef<any>;
 }

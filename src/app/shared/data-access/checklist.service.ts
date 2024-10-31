@@ -1,4 +1,10 @@
-import { Injectable, computed, effect, inject, signal } from '@angular/core';
+import {
+  Injectable,
+  ResourceStatus,
+  effect,
+  inject,
+  linkedSignal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject } from 'rxjs';
 import {
@@ -22,65 +28,53 @@ export class ChecklistService {
   private checklistItemService = inject(ChecklistItemService);
   private storageService = inject(StorageService);
 
-  // state
-  private state = signal<ChecklistsState>({
-    checklists: [],
-    loaded: false,
-    error: null,
-  });
-
-  // selectors
-  checklists = computed(() => this.state().checklists);
-  loaded = computed(() => this.state().loaded);
-  error = computed(() => this.state().error);
-
   // sources
-  private checklistsLoaded$ = this.storageService.loadChecklists();
+  loadedChecklists = this.storageService.loadChecklists();
   add$ = new Subject<AddChecklist>();
   edit$ = new Subject<EditChecklist>();
   remove$ = this.checklistItemService.checklistRemoved$;
 
+  // state
+  checklists = linkedSignal({
+    source: this.loadedChecklists.value,
+    computation: (checklists) => checklists ?? [],
+  });
+
   constructor() {
-    // reducers
-    this.checklistsLoaded$.pipe(takeUntilDestroyed()).subscribe({
-      next: (checklists) =>
-        this.state.update((state) => ({
-          ...state,
-          checklists,
-          loaded: true,
-        })),
-      error: (err) => this.state.update((state) => ({ ...state, error: err })),
-    });
+    this.add$
+      .pipe(takeUntilDestroyed())
+      .subscribe((checklist) =>
+        this.checklists.update((checklists) => [
+          ...checklists,
+          this.addIdToChecklist(checklist),
+        ]),
+      );
 
-    this.add$.pipe(takeUntilDestroyed()).subscribe((checklist) =>
-      this.state.update((state) => ({
-        ...state,
-        checklists: [...state.checklists, this.addIdToChecklist(checklist)],
-      }))
-    );
-
-    this.remove$.pipe(takeUntilDestroyed()).subscribe((id) =>
-      this.state.update((state) => ({
-        ...state,
-        checklists: state.checklists.filter((checklist) => checklist.id !== id),
-      }))
-    );
-
-    this.edit$.pipe(takeUntilDestroyed()).subscribe((update) =>
-      this.state.update((state) => ({
-        ...state,
-        checklists: state.checklists.map((checklist) =>
-          checklist.id === update.id
-            ? { ...checklist, title: update.data.title }
-            : checklist
+    this.remove$
+      .pipe(takeUntilDestroyed())
+      .subscribe((id) =>
+        this.checklists.update((checklists) =>
+          checklists.filter((checklist) => checklist.id !== id),
         ),
-      }))
-    );
+      );
+
+    this.edit$
+      .pipe(takeUntilDestroyed())
+      .subscribe((update) =>
+        this.checklists.update((checklists) =>
+          checklists.map((checklist) =>
+            checklist.id === update.id
+              ? { ...checklist, title: update.data.title }
+              : checklist,
+          ),
+        ),
+      );
 
     // effects
     effect(() => {
-      if (this.loaded()) {
-        this.storageService.saveChecklists(this.checklists());
+      const checklists = this.checklists();
+      if (this.loadedChecklists.status() === ResourceStatus.Resolved) {
+        this.storageService.saveChecklists(checklists);
       }
     });
   }
@@ -98,7 +92,7 @@ export class ChecklistService {
 
     // Check if the slug already exists
     const matchingSlugs = this.checklists().find(
-      (checklist) => checklist.id === slug
+      (checklist) => checklist.id === slug,
     );
 
     // If the title is already being used, add a string to make the slug unique

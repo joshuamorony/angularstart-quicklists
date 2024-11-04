@@ -7,19 +7,9 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject } from 'rxjs';
-import {
-  AddChecklist,
-  Checklist,
-  EditChecklist,
-} from '../interfaces/checklist';
+import { AddChecklist, EditChecklist } from '../interfaces/checklist';
 import { ChecklistItemService } from 'src/app/checklist/data-access/checklist-item.service';
 import { StorageService } from './storage.service';
-
-export interface ChecklistsState {
-  checklists: Checklist[];
-  loaded: boolean;
-  error: string | null;
-}
 
 @Injectable({
   providedIn: 'root',

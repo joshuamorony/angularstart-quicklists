@@ -4,12 +4,14 @@ import {
   effect,
   inject,
   linkedSignal,
+  untracked,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject } from 'rxjs';
 import { AddChecklist, EditChecklist } from '../interfaces/checklist';
 import { ChecklistItemService } from 'src/app/checklist/data-access/checklist-item.service';
 import { StorageService } from './storage.service';
+import { reducer, sourceSignal } from '../utils/sourceSignal';
 
 @Injectable({
   providedIn: 'root',
@@ -20,9 +22,9 @@ export class ChecklistService {
 
   // sources
   loadedChecklists = this.storageService.loadChecklists();
-  add$ = new Subject<AddChecklist>();
-  edit$ = new Subject<EditChecklist>();
-  remove$ = this.checklistItemService.checklistRemoved$;
+  add = sourceSignal<AddChecklist>();
+  edit = sourceSignal<EditChecklist>();
+  remove = this.checklistItemService.checklistRemoved;
 
   // state
   checklists = linkedSignal({
@@ -31,34 +33,31 @@ export class ChecklistService {
   });
 
   constructor() {
-    this.add$
-      .pipe(takeUntilDestroyed())
-      .subscribe((checklist) =>
-        this.checklists.update((checklists) => [
-          ...checklists,
-          this.addIdToChecklist(checklist),
-        ]),
-      );
+    reducer(this.add, (checklist) =>
+      this.checklists.update((checklists) =>
+        checklist
+          ? [...checklists, this.addIdToChecklist(checklist)]
+          : checklists,
+      ),
+    );
 
-    this.remove$
-      .pipe(takeUntilDestroyed())
-      .subscribe((id) =>
-        this.checklists.update((checklists) =>
-          checklists.filter((checklist) => checklist.id !== id),
-        ),
-      );
+    reducer(this.remove, (id) =>
+      this.checklists.update((checklists) =>
+        checklists.filter((checklist) => checklist.id !== id),
+      ),
+    );
 
-    this.edit$
-      .pipe(takeUntilDestroyed())
-      .subscribe((update) =>
-        this.checklists.update((checklists) =>
-          checklists.map((checklist) =>
-            checklist.id === update.id
-              ? { ...checklist, title: update.data.title }
-              : checklist,
-          ),
-        ),
-      );
+    reducer(this.edit, (update) =>
+      this.checklists.update((checklists) =>
+        update
+          ? checklists.map((checklist) =>
+              checklist.id === update.id
+                ? { ...checklist, title: update.data.title }
+                : checklist,
+            )
+          : checklists,
+      ),
+    );
 
     // effects
     effect(() => {

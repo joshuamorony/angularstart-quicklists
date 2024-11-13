@@ -19,7 +19,7 @@ import { ChecklistService } from '../shared/data-access/checklist.service';
       <h2>Your checklists</h2>
       <app-checklist-list
         [checklists]="checklistService.checklists()"
-        (delete)="checklistService.remove$.next($event)"
+        (delete)="checklistService.remove.set($event)"
         (edit)="checklistBeingEdited.set($event)"
       />
     </section>
@@ -35,11 +35,11 @@ import { ChecklistService } from '../shared/data-access/checklist.service';
           [formGroup]="checklistForm"
           (save)="
             checklistBeingEdited()?.id
-              ? checklistService.edit$.next({
+              ? checklistService.edit.set({
                   id: checklistBeingEdited()!.id!,
                   data: checklistForm.getRawValue()
                 })
-              : checklistService.add$.next(checklistForm.getRawValue())
+              : checklistService.add.set(checklistForm.getRawValue())
           "
           (close)="checklistBeingEdited.set(null)"
         />

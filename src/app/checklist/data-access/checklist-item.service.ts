@@ -15,6 +15,7 @@ import {
   EditChecklistItem,
   RemoveChecklistItem,
 } from 'src/app/shared/interfaces/checklist-item';
+import { sourceSignal } from 'src/app/shared/utils/sourceSignal';
 
 export interface ChecklistItemsState {
   checklistItems: ChecklistItem[];
@@ -34,7 +35,7 @@ export class ChecklistItemService {
   edit$ = new Subject<EditChecklistItem>();
   toggle$ = new Subject<RemoveChecklistItem>();
   reset$ = new Subject<RemoveChecklist>();
-  checklistRemoved$ = new Subject<RemoveChecklist>();
+  checklistRemoved = sourceSignal<RemoveChecklist>();
 
   // state
   checklistItems = linkedSignal({
@@ -99,13 +100,13 @@ export class ChecklistItemService {
         ),
       );
 
-    this.checklistRemoved$
-      .pipe(takeUntilDestroyed())
-      .subscribe((checklistId) =>
-        this.checklistItems.update((checklistItems) =>
-          checklistItems.filter((item) => item.checklistId !== checklistId),
-        ),
-      );
+    // this.checklistRemoved$
+    //   .pipe(takeUntilDestroyed())
+    //   .subscribe((checklistId) =>
+    //     this.checklistItems.update((checklistItems) =>
+    //       checklistItems.filter((item) => item.checklistId !== checklistId),
+    //     ),
+    //   );
 
     // effects
     effect(() => {

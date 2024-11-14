@@ -6,16 +6,19 @@ import {
   linkedSignal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Subject } from 'rxjs';
+import { reduce, Subject } from 'rxjs';
 import { StorageService } from 'src/app/shared/data-access/storage.service';
-import { RemoveChecklist } from 'src/app/shared/interfaces/checklist';
+import {
+  EditChecklist,
+  RemoveChecklist,
+} from 'src/app/shared/interfaces/checklist';
 import {
   AddChecklistItem,
   ChecklistItem,
   EditChecklistItem,
   RemoveChecklistItem,
 } from 'src/app/shared/interfaces/checklist-item';
-import { sourceSignal } from 'src/app/shared/utils/sourceSignal';
+import { reducer, sourceSignal } from 'src/app/shared/utils/sourceSignal';
 
 export interface ChecklistItemsState {
   checklistItems: ChecklistItem[];
@@ -30,11 +33,11 @@ export class ChecklistItemService {
 
   // sources
   loadedChecklistItems = this.storageService.loadChecklistItems();
-  add$ = new Subject<AddChecklistItem>();
-  remove$ = new Subject<RemoveChecklistItem>();
-  edit$ = new Subject<EditChecklistItem>();
-  toggle$ = new Subject<RemoveChecklistItem>();
-  reset$ = new Subject<RemoveChecklist>();
+  add = sourceSignal<AddChecklistItem>();
+  remove = sourceSignal<RemoveChecklistItem>();
+  edit = sourceSignal<EditChecklist>();
+  toggle = sourceSignal<RemoveChecklistItem>();
+  reset = sourceSignal<RemoveChecklist>();
   checklistRemoved = sourceSignal<RemoveChecklist>();
 
   // state
@@ -44,69 +47,65 @@ export class ChecklistItemService {
   });
 
   constructor() {
-    this.add$.pipe(takeUntilDestroyed()).subscribe((checklistItem) =>
-      this.checklistItems.update((checklistItems) => [
-        ...checklistItems,
-        {
-          ...checklistItem.item,
-          id: Date.now().toString(),
-          checklistId: checklistItem.checklistId,
-          checked: false,
-        },
-      ]),
+    reducer(this.add, (checklistItem) =>
+      this.checklistItems.update((checklistItems) =>
+        checklistItem
+          ? [
+              ...checklistItems,
+              {
+                ...checklistItem.item,
+                id: Date.now().toString(),
+                checklistId: checklistItem.checklistId,
+                checked: false,
+              },
+            ]
+          : checklistItems,
+      ),
     );
 
-    this.edit$
-      .pipe(takeUntilDestroyed())
-      .subscribe((update) =>
-        this.checklistItems.update((checklistItems) =>
-          checklistItems.map((item) =>
-            item.id === update.id
-              ? { ...item, title: update.data.title }
-              : item,
-          ),
+    reducer(this.edit, (update) =>
+      this.checklistItems.update((checklistItems) =>
+        checklistItems.map((item) =>
+          update && item.id === update.id
+            ? { ...item, title: update.data.title }
+            : item,
         ),
-      );
+      ),
+    );
 
-    this.remove$
-      .pipe(takeUntilDestroyed())
-      .subscribe((id) =>
-        this.checklistItems.update((checklistItems) =>
-          checklistItems.filter((item) => item.id !== id),
+    reducer(this.remove, (id) =>
+      this.checklistItems.update((checklistItems) =>
+        id ? checklistItems.filter((item) => item.id !== id) : checklistItems,
+      ),
+    );
+
+    reducer(this.toggle, (checklistItemId) =>
+      this.checklistItems.update((checklistItems) =>
+        checklistItems.map((item) =>
+          checklistItemId && item.id === checklistItemId
+            ? { ...item, checked: !item.checked }
+            : item,
         ),
-      );
+      ),
+    );
 
-    this.toggle$
-      .pipe(takeUntilDestroyed())
-      .subscribe((checklistItemId) =>
-        this.checklistItems.update((checklistItems) =>
-          checklistItems.map((item) =>
-            item.id === checklistItemId
-              ? { ...item, checked: !item.checked }
-              : item,
-          ),
+    reducer(this.reset, (checklistId) =>
+      this.checklistItems.update((checklistItems) =>
+        checklistItems.map((item) =>
+          checklistId && item.checklistId === checklistId
+            ? { ...item, checked: false }
+            : item,
         ),
-      );
+      ),
+    );
 
-    this.reset$
-      .pipe(takeUntilDestroyed())
-      .subscribe((checklistId) =>
-        this.checklistItems.update((checklistItems) =>
-          checklistItems.map((item) =>
-            item.checklistId === checklistId
-              ? { ...item, checked: false }
-              : item,
-          ),
-        ),
-      );
-
-    // this.checklistRemoved$
-    //   .pipe(takeUntilDestroyed())
-    //   .subscribe((checklistId) =>
-    //     this.checklistItems.update((checklistItems) =>
-    //       checklistItems.filter((item) => item.checklistId !== checklistId),
-    //     ),
-    //   );
+    reducer(this.checklistRemoved, (checklistId) =>
+      this.checklistItems.update((checklistItems) =>
+        checklistId
+          ? checklistItems.filter((item) => item.checklistId !== checklistId)
+          : checklistItems,
+      ),
+    );
 
     // effects
     effect(() => {

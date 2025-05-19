@@ -1,10 +1,4 @@
-import {
-  Injectable,
-  ResourceStatus,
-  effect,
-  inject,
-  linkedSignal,
-} from '@angular/core';
+import { Injectable, effect, inject, linkedSignal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject } from 'rxjs';
 import { AddChecklist, EditChecklist } from '../interfaces/checklist';
@@ -63,7 +57,7 @@ export class ChecklistService {
     // effects
     effect(() => {
       const checklists = this.checklists();
-      if (this.loadedChecklists.status() === ResourceStatus.Resolved) {
+      if (this.loadedChecklists.status() === 'resolved') {
         this.storageService.saveChecklists(checklists);
       }
     });
